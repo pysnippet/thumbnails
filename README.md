@@ -16,7 +16,7 @@ Fluid Player that use this format for showing the thumbnail preview.
 ## TODO List
 
 - Implement thumbnail preview feature using following kinds of video players.
-    - Plyr (https://github.com/sampotts/plyr)
+    - ~~Plyr (https://github.com/sampotts/plyr)~~
     - Video.js (https://github.com/videojs/video.js)
     - JW Player (https://github.com/jwplayer/jwplayer)
     - Flowplayer (https://github.com/flowplayer/flowplayer)
@@ -59,22 +59,22 @@ one must show the highest performance and support various output customization o
    ```
 - JW Player
    ```js
-     var player = jwplayer('my-player');
-     player.setup({
-       file: 'path/to/my-video.mp4',
-       thumbnails: [
-         {
-           time: 5,
-           image: 'path/to/thumbnail-1.jpg'
-         },
-         {
-           time: 10,
-           image: 'path/to/thumbnail-2.jpg'
-         },
-         // Additional thumbnail preview objects...
-       ]
-     });
-     ```
+   var player = jwplayer('my-player');
+   player.setup({
+     file: 'path/to/my-video.mp4',
+     thumbnails: [
+       {
+         time: 5,
+         image: 'path/to/thumbnail-1.jpg'
+       },
+       {
+         time: 10,
+         image: 'path/to/thumbnail-2.jpg'
+       },
+       // Additional thumbnail preview objects...
+     ]
+   });
+   ```
 - Video.js (with WebVTT)
   ```html
   <link href="https://unpkg.com/video.js@7.20.3/dist/video-js.css" rel="stylesheet">
