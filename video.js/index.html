@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="https://unpkg.com/video.js@7.20.3/dist/video-js.css" rel="stylesheet"/>
+    <link href="./videojs.thumbnails.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <script src="./videojs.thumbnails.js"></script>
+</head>
+<body>
+
+<video id="videoplayer" class="video-js" controls>
+    <source src="http://localhost:3000/stc/valerian-1080p.mp4" type="video/mp4">
+</video>
+
+<script>
+    const video = videojs('videoplayer');
+    video.thumbnails({
+        0: {
+            src: 'http://localhost:3000/stc/thumbnails.jpg',
+            width: '120px'
+        },
+        5: {
+            src: 'http://localhost:3000/stc/thumbnails.jpg'
+        }
+    })
+</script>
+</body>
+</html>
