@@ -13,15 +13,6 @@ Fluid Player that use this format for showing the thumbnail preview.
 - https://github.com/estliberitas/node-thumbnails-webvtt
 - https://github.com/flavioribeiro/video-thumbnail-generator
 
-## TODO List
-
-- Implement thumbnail preview feature using following kinds of video players.
-    - ~~Plyr (https://github.com/sampotts/plyr)~~
-    - Video.js (https://github.com/videojs/video.js)
-    - JW Player (https://github.com/jwplayer/jwplayer)
-    - Flowplayer (https://github.com/flowplayer/flowplayer)
-    - Fluid Player (https://github.com/fluid-player/fluid-player)
-
 ## NOTES
 
 _The following notes are thought based
@@ -38,65 +29,6 @@ one must show the highest performance and support various output customization o
 - Provide a well documented python API.
 - Use like a linux command or as a python library.
 - Use `aiofiles` and `multiprocessing.Pool.map` to process the media-files with high performance.
-
-## Examples
-
-- Video.js
-   ```js
-   var player = videojs('my-video', {
-     thumbs: [
-       {
-         time: 5,
-         image: 'path/to/thumbnail-1.jpg'
-       },
-       {
-         time: 10,
-         image: 'path/to/thumbnail-2.jpg'
-       },
-       // Additional thumbnail preview objects...
-     ]
-   });
-   ```
-- JW Player
-   ```js
-   var player = jwplayer('my-player');
-   player.setup({
-     file: 'path/to/my-video.mp4',
-     thumbnails: [
-       {
-         time: 5,
-         image: 'path/to/thumbnail-1.jpg'
-       },
-       {
-         time: 10,
-         image: 'path/to/thumbnail-2.jpg'
-       },
-       // Additional thumbnail preview objects...
-     ]
-   });
-   ```
-- Video.js (with WebVTT)
-  ```html
-  <link href="https://unpkg.com/video.js@7.20.3/dist/video-js.css" rel="stylesheet">
-  <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
-  <style>
-  .vjs-thumbnail-preview {
-    width: 120px;
-    height: 90px;
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-  }
-  </style>
-  
-  <video id="my-video" class="video-js" controls data-setup='{"textTracks": [{"src": "https://example.com/thumbnail-preview.vtt", "kind": "metadata", "default": true}]}'>
-    <source src="https://example.com/video.mp4" type="video/mp4">
-  </video>
-  
-  <script>
-    videojs('my-video');
-  </script>
-  ```
 
 ## Good single page documentation example
 
