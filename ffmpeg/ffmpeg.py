@@ -1,13 +1,12 @@
 import os
 import re
 import subprocess as sp
-import warnings
 
+import imageio_ffmpeg
 import numpy as np
-from imageio import imsave
-from imageio.plugins.ffmpeg import get_exe
+from PIL import Image
 
-FFMPEG_BINARY = get_exe()
+FFMPEG_BINARY = imageio_ffmpeg.get_ffmpeg_exe()
 
 
 def convert_to_seconds(time):
@@ -83,7 +82,7 @@ class FFMPEG:
                     "-sws_flags",
                     "bicubic",
                     "-pix_fmt",
-                    self.pixel_format,
+                    "rgba",
                     "-vcodec",
                     "rawvideo",
                     "-",
@@ -106,7 +105,8 @@ class FFMPEG:
         im = self.get_frame(t)
         im = im.astype("uint8")
 
-        imsave(filename, im)
+        img = Image.fromarray(im)
+        img.save(filename)
 
     def skip_frames(self, n=1):
         w, h = self.size
@@ -122,34 +122,8 @@ class FFMPEG:
         s = self.proc.stdout.read(nbytes)
 
         if len(s) != nbytes:
-            warnings.warn(
-                (
-                    "In file %s, %d bytes wanted but %d bytes read at frame index"
-                    " %d (out of a total %d frames), at time %.02f/%.02f sec."
-                    " Using the last valid frame instead."
-                )
-                % (
-                    self.filename,
-                    nbytes,
-                    len(s),
-                    self.pos,
-                    self.n_frames,
-                    1.0 * self.pos / self.fps,
-                    self.duration,
-                ),
-                UserWarning,
-            )
             if not hasattr(self, "last_read"):
-                raise IOError(
-                    (
-                        "MoviePy error: failed to read the first frame of "
-                        f"video file {self.filename}. That might mean that the file is "
-                        "corrupted. That may also mean that you are using "
-                        "a deprecated version of FFMPEG. On Ubuntu/Debian "
-                        "for instance the version in the repos is deprecated. "
-                        "Please update to a recent version from the website."
-                    )
-                )
+                raise IOError
 
             result = self.last_read
 
@@ -201,7 +175,7 @@ class FFMPEG:
         self.close()
 
 
-class FFmpegInfosParser:
+class FFMPEGInfos:
 
     def __init__(
             self,
@@ -526,10 +500,10 @@ def ffmpeg_parse_infos(
     proc.terminate()
     del proc
 
-    return FFmpegInfosParser(
+    return FFMPEGInfos(
         infos,
         filename,
         fps_source=fps_source,
-        check_duration=check_duration,
         decode_file=decode_file,
+        check_duration=check_duration,
     ).parse()
