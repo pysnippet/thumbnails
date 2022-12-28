@@ -4,14 +4,14 @@ import math
 
 from PIL import Image
 
-from ffmpeg import Ffmpeg
+from ffmpeg.ffmpeg import Ffmpeg
 
 width, height = 300, 200
 interval = 20
 columns = 3
 
 files = ["valerian-1080p.avi", "valerian-1080p.mkv", "valerian-1080p.mov", "valerian-1080p.mp4",
-         "valerian-1080p.webm", "valerian-1080p.wmv", "valerian-1080p.mpeg", "valerian-1080p.mpg"]
+         "valerian-1080p.webm", "valerian-1080p.wmv", "valerian-1080p.mpeg", "valerian-1080p.mpg", "valerian-1080p.ogv"]
 
 
 def worker(video):
@@ -25,9 +25,12 @@ def worker(video):
     except IOError:
         master = Image.new(mode="RGB", size=(master_width, master_height))
 
-    for moment in range(0, int(video.duration), interval):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        frames = executor.map(video.get_frame, range(0, int(video.duration), interval))
+
+    for frame in frames:
         x, y = width * column, height * line
-        image = video.get_frame_buffer(moment)
+        image = video.frame_to_buffer(frame)
         image = image.resize((width, height), Image.ANTIALIAS)
         master.paste(image, (x, y))
 
@@ -43,11 +46,8 @@ def worker(video):
 async def main():
     fps = [Ffmpeg(fp) for fp in files]
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(worker, fps)
-
-    for fp in fps:
-        fp.close()
 
 
 loop = asyncio.get_event_loop()

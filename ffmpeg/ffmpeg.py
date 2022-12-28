@@ -27,7 +27,7 @@ def cross_platform_popen_params(popen_params):
     return popen_params
 
 
-class FFMPEG:
+class Ffmpeg:
 
     def __init__(self, filename, bufsize=None, pixel_format="rgba"):
 
@@ -51,11 +51,13 @@ class FFMPEG:
             bufsize = self.depth * w * h + 100
 
         self.bufsize = bufsize
-        self.initialize()
 
-    def initialize(self, start_time=0):
-        self.close(delete_lastread=False)
+    @staticmethod
+    def frame_to_buffer(image):
+        image = image.astype("uint8")
+        return Image.fromarray(image)
 
+    def get_frame(self, start_time=0):
         if start_time != 0:
             offset = min(1, start_time)
             i_arg = [
@@ -96,83 +98,21 @@ class FFMPEG:
                 "stdin": sp.DEVNULL,
             }
         )
-        self.proc = sp.Popen(cmd, **popen_params)
 
-        self.pos = self.get_frame_number(start_time)
-        self.lastread = self.read_frame()
+        proc = sp.Popen(cmd, **popen_params)
 
-    def save_frame(self, filename, t=0):
-        im = self.get_frame(t)
-        im = im.astype("uint8")
-
-        img = Image.fromarray(im)
-        img.save(filename)
-
-    def skip_frames(self, n=1):
-        w, h = self.size
-        for i in range(n):
-            self.proc.stdout.read(self.depth * w * h)
-
-        self.pos += n
-
-    def read_frame(self):
         w, h = self.size
         nbytes = self.depth * w * h
+        s = proc.stdout.read(nbytes)
 
-        s = self.proc.stdout.read(nbytes)
-
-        if len(s) != nbytes:
-            if not hasattr(self, "last_read"):
-                raise IOError
-
-            result = self.last_read
-
+        if hasattr(np, "frombuffer"):
+            result = np.frombuffer(s, dtype="uint8")
         else:
-            if hasattr(np, "frombuffer"):
-                result = np.frombuffer(s, dtype="uint8")
-            else:
-                result = np.fromstring(s, dtype="uint8")
-            result.shape = (h, w, len(s) // (w * h))
-            self.last_read = result
+            result = np.fromstring(s, dtype="uint8")
 
-        self.pos += 1
+        result.shape = (h, w, len(s) // (w * h))
 
         return result
-
-    def get_frame(self, t):
-        pos = self.get_frame_number(t) + 1
-
-        if not self.proc:
-            print("Proc not detected")
-            self.initialize(t)
-            return self.last_read
-
-        if pos == self.pos:
-            return self.last_read
-        elif (pos < self.pos) or (pos > self.pos + 100):
-            self.initialize(t)
-            return self.lastread
-        else:
-            self.skip_frames(pos - self.pos - 1)
-            result = self.read_frame()
-            return result
-
-    def get_frame_number(self, t):
-        return int(self.fps * t + 0.00001)
-
-    def close(self, delete_lastread=True):
-        if self.proc:
-            if self.proc.poll() is None:
-                self.proc.terminate()
-                self.proc.stdout.close()
-                self.proc.stderr.close()
-                self.proc.wait()
-            self.proc = None
-        if delete_lastread and hasattr(self, "last_read"):
-            del self.last_read
-
-    def __del__(self):
-        self.close()
 
 
 class FFMPEGInfos:
