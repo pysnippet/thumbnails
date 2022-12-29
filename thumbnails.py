@@ -4,7 +4,7 @@ import math
 
 from PIL import Image
 
-from ffmpeg.ffmpeg import Ffmpeg
+from ffmpeg import FFMpeg
 
 width, height = 300, 200
 interval = 20
@@ -44,7 +44,7 @@ def worker(video):
 
 
 async def main():
-    fps = [Ffmpeg(fp) for fp in files]
+    fps = [FFMpeg(fp) for fp in files]
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(worker, fps)
