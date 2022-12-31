@@ -8,7 +8,19 @@ import numpy
 from PIL import Image
 from imageio.v3 import immeta
 
+from sema import MemoSemaphore
+
 FFMPEG_BINARY = imageio_ffmpeg.get_ffmpeg_exe()
+
+semaphore = MemoSemaphore()
+
+
+def memo_deco(func):
+    def wrapper(*args, **kwargs):
+        with semaphore:
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
 class FFMpeg:
@@ -70,6 +82,7 @@ class FFMpeg:
         image = image.astype("uint8")
         return Image.fromarray(image)
 
+    @memo_deco
     def get_frame(self, start_time):
         if start_time != 0:
             offset = min(1, start_time)

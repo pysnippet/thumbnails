@@ -6,7 +6,7 @@ from PIL import Image
 from ffmpeg import FFMpeg
 
 width, height = 300, 200
-interval = 20
+interval = 10
 columns = 3
 
 files = ["valerian-1080p.avi", "valerian-1080p.mkv", "valerian-1080p.mov", "valerian-1080p.mp4",
