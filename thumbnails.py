@@ -24,9 +24,8 @@ def worker(video):
 
     for frame in frames:
         x, y = width * column, height * line
-        image = video.frame_to_buffer(frame)
-        image = image.resize((width, height), Image.ANTIALIAS)
-        master.paste(image, (x, y))
+        frame = frame.resize((width, height), Image.ANTIALIAS)
+        master.paste(frame, (x, y))
 
         column += 1
 
