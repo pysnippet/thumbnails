@@ -1,13 +1,11 @@
 # import asyncio
 # import concurrent.futures
-from threading import Semaphore, Lock
+from threading import Semaphore
 
 import psutil
 
 TH = 0
 AS = 0
-
-lock = Lock()
 
 
 class MemoSemaphore(Semaphore):

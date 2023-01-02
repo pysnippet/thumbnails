@@ -3,24 +3,12 @@ import re
 import subprocess
 from functools import reduce
 
-import imageio_ffmpeg
-import numpy
-from PIL import Image
+from PIL.Image import fromarray
 from imageio.v3 import immeta
+from imageio_ffmpeg import get_ffmpeg_exe
+from numpy import frombuffer
 
-from sema import MemoSemaphore
-
-FFMPEG_BINARY = imageio_ffmpeg.get_ffmpeg_exe()
-
-semaphore = MemoSemaphore()
-
-
-def memo_deco(func):
-    def wrapper(*args, **kwargs):
-        with semaphore:
-            return func(*args, **kwargs)
-
-    return wrapper
+FFMPEG_BINARY = get_ffmpeg_exe()
 
 
 class FFMpeg:
@@ -48,7 +36,7 @@ class FFMpeg:
     def _parse_duration(stdout):
         duration_regex = r"duration[^\n]+([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9])"
         time = re.search(duration_regex, stdout, re.M | re.I).group(1)
-        time = [float(part.replace(",", ".")) for part in time.split(":")]
+        time = (float(part.replace(",", ".")) for part in time.split(":"))
         return sum(mult * part for mult, part in zip((3600, 60, 1), time))
 
     @staticmethod
@@ -61,64 +49,48 @@ class FFMpeg:
         meta = immeta(filename)
         duration, size = meta.get("duration"), meta.get("size")
 
-        if not all([duration, size]):
-            cmd = [FFMPEG_BINARY, "-hide_banner", "-i", filename]
+        if not all((duration, size)):
+            cmd = (FFMPEG_BINARY, "-hide_banner", "-i", filename)
 
             popen_params = self.cross_platform_popen_params()
             process = subprocess.Popen(cmd, **popen_params)
             _, stderr = process.communicate()
             stdout = stderr.decode("utf8", errors="ignore")
 
-            process.terminate()
-            del process
-
             duration = self._parse_duration(stdout)
             size = self._parse_size(stdout)
 
         return duration, size
 
-    @staticmethod
-    def frame_to_buffer(image):
-        image = image.astype("uint8")
-        return Image.fromarray(image)
-
-    @memo_deco
     def get_frame(self, start_time):
         if start_time != 0:
             offset = min(1, start_time)
-            i_arg = [
+            i_arg = (
                 "-ss", "%.06f" % (start_time - offset),
                 "-i", self.filename,
                 "-ss", "%.06f" % offset,
-            ]
+            )
         else:
-            i_arg = ["-i", self.filename]
+            i_arg = ("-i", self.filename)
 
         cmd = (
-                [FFMPEG_BINARY]
-                + i_arg
-                + [
-                    "-loglevel", "error",
-                    "-f", "image2pipe",
-                    "-vf", "scale=%d:%d" % tuple(self.size),
-                    "-sws_flags", "bicubic",
-                    "-pix_fmt", "rgba",
-                    "-vcodec", "rawvideo", "-",
-                ]
+            FFMPEG_BINARY,
+            *i_arg,
+            *(
+                "-loglevel", "error",
+                "-f", "image2pipe",
+                "-vf", "scale=%d:%d" % tuple(self.size),
+                "-sws_flags", "bicubic",
+                "-pix_fmt", "rgba",
+                "-vcodec", "rawvideo", "-",
+            ),
         )
 
         popen_params = self.cross_platform_popen_params(self.bytes + 100)
         process = subprocess.Popen(cmd, **popen_params)
         buffer = process.stdout.read(self.bytes)
 
-        process.terminate()
-        del process
-
-        if hasattr(numpy, "frombuffer"):
-            result = numpy.frombuffer(buffer, dtype="uint8")
-        else:
-            result = numpy.fromstring(buffer, dtype="uint8")
-
+        result = frombuffer(buffer, dtype="uint8")
         result.shape = (*self.size[::-1], len(buffer) // self.area)
 
-        return result
+        return fromarray(result)
