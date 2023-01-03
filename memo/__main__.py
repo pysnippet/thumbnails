@@ -50,7 +50,7 @@ while True:
             # Re-acquire the lock
             thread_lock.acquire()
             # Update the memory usage
-            memory_usage = psutil.virtual_memory().used
+            memory_usage = psutil.virtual_memory().used - start_memory_usage
 
     # Start a new thread
     thread = threading.Thread(target=run_thread)
