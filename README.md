@@ -44,7 +44,7 @@ thumbnails [options]
 |-------------|:-------:|-----------------------------------------------------------------------------------------------|
 | `parallel`  | `false` | Process in parallel to make it faster.                                                        |
 | `overwrite` | `false` | Overwrite the existing files with new ones.                                                   |
-| `interval`  |   0.5   | The interval between two thumbnails in seconds.                                               |
+| `interval`  |    1    | The interval between two thumbnails in seconds.                                               |
 | `compress`  |    1    | The image compression coefficient is a number from 0 to 1 where 1 means _no compression_.     |
 | `as`        |  `vtt`  | Output as either `VTT` or `JSON` format.                                                      |
 | `basepath`  |    -    | In case the relative path does not work, the prefix of the thumbnails path can be customized. |

@@ -1,39 +1,20 @@
 import concurrent.futures
-import math
-
-from PIL import Image
 
 from ffmpeg import FFMpeg
 
-width, height = 300, 200
+# Read from the program arguments.
+compress = 1
 interval = 20
-columns = 3
 
 files = ["valerian-1080p.avi", "valerian-1080p.mkv", "valerian-1080p.mov", "valerian-1080p.mp4",
          "valerian-1080p.webm", "valerian-1080p.wmv", "valerian-1080p.mpeg", "valerian-1080p.mpg", "valerian-1080p.ogv"]
 
 
 def worker(video):
-    line, column = 0, 0
-    frames_count = len(range(0, int(video.duration), interval))
-    master_height = height * int(math.ceil(float(frames_count) / columns))
-    master = Image.new(mode="RGBA", size=(width * columns, master_height))
-
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        frames = executor.map(video.get_frame, range(0, int(video.duration), interval))
-
-    for frame in frames:
-        x, y = width * column, height * line
-        frame = frame.resize((width, height), Image.ANTIALIAS)
-        master.paste(frame, (x, y))
-
-        column += 1
-
-        if column == columns:
-            line += 1
-            column = 0
-
-    master.save(video.filename + ".png")
+    video.set_compress(compress)
+    video.set_interval(interval)
+    video.extract_frames()
+    video.join_frames()
 
 
 def main():
