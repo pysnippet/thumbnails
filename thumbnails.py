@@ -1,6 +1,6 @@
 import concurrent.futures
 
-from ffmpeg import FFMpeg
+from thumbnails import FFMpeg
 
 # Read from the program arguments.
 compress = 1

@@ -11,18 +11,21 @@ from PIL import Image
 from imageio.v3 import immeta
 from imageio_ffmpeg import get_ffmpeg_exe
 
-FFMPEG_BINARY = get_ffmpeg_exe()
+from .thumbnails import _ThumbnailMixin
+
+ffmpeg_bin = get_ffmpeg_exe()
 
 
-class FFMpeg:
+class FFMpeg(_ThumbnailMixin):
     def __init__(self, filename):
         self.__compress = 1
         self.__interval = 1
+        self.thumbnails = []
         duration, size = self._parse_metadata(filename)
+        _ThumbnailMixin.__init__(self, size)
         self.tempdir = TemporaryDirectory()
+        self.duration = int(duration + 1)
         self.filename = filename
-        self.duration = duration
-        self.size = size
 
     def get_compress(self):
         return self.__compress
@@ -77,7 +80,7 @@ class FFMpeg:
         duration, size = meta.get("duration"), meta.get("size")
 
         if not all((duration, size)):
-            cmd = (FFMPEG_BINARY, "-hide_banner", "-i", filename)
+            cmd = (ffmpeg_bin, "-hide_banner", "-i", filename)
 
             popen_params = self._cross_platform_popen_params()
             process = subprocess.Popen(cmd, **popen_params)
@@ -95,7 +98,7 @@ class FFMpeg:
         _timestamp = str(timedelta(seconds=start_time))
 
         cmd = (
-            FFMPEG_BINARY,
+            ffmpeg_bin,
             "-ss", _timestamp,
             "-i", _input_file,
             "-loglevel", "error",
@@ -107,30 +110,32 @@ class FFMpeg:
         subprocess.Popen(cmd).wait()
 
     def extract_frames(self):
-        _intervals = range(0, int(self.duration), self.get_interval())
+        _intervals = range(0, self.duration, self.get_interval())
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self._extract_frame, _intervals)
 
     def join_frames(self):
-        width, height = self.size
-
-        _min_width = 300
-        _min_height = math.ceil(_min_width * height / width)
-
-        width = max(_min_width, width * self.__compress / 10)
-        height = max(_min_height, height * self.__compress / 10)
-
         line, column = 0, 0
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
-        frames_count = len(range(0, int(self.duration), self.get_interval()))
-        columns = self.calc_columns(frames_count, width, height)
-        master_height = height * int(math.ceil(float(frames_count) / columns))
-        master = Image.new(mode="RGBA", size=(width * columns, master_height))
+        frames_count = len(range(0, self.duration, self.get_interval()))
+        columns = self.calc_columns(frames_count, self.width, self.height)
+        master_height = self.height * int(math.ceil(float(frames_count) / columns))
+        master = Image.new(mode="RGBA", size=(self.width * columns, master_height))
 
-        for frame in frames:
+        print("WEBVTT\n")
+
+        for n, frame in enumerate(frames):
             with Image.open(frame) as image:
-                x, y = width * column, height * line
-                image = image.resize((width, height), Image.ANTIALIAS)
+                x, y = self.width * column, self.height * line
+
+                print("0%s.000 --> 0%s.000" % (
+                    str(timedelta(seconds=n * self.get_interval())),
+                    str(timedelta(seconds=(n + 1) * self.get_interval())),
+                    # return the whole duration if n + 1 does not exist
+                ))
+                print(self.filename + ".png#xywh=%d,%d,%d,%d\n" % (x, y, self.width, self.height))
+
+                image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
 
                 column += 1
