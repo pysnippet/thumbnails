@@ -11,18 +11,24 @@ from PIL import Image
 from imageio.v3 import immeta
 from imageio_ffmpeg import get_ffmpeg_exe
 
-FFMPEG_BINARY = get_ffmpeg_exe()
+from .thumbnails import _ThumbnailMixin
+
+ffmpeg_bin = get_ffmpeg_exe()
 
 
-class FFMpeg:
+class FFMpeg(_ThumbnailMixin):
     def __init__(self, filename):
         self.__compress = 1
         self.__interval = 1
+        self.__basepath = ""
+        self.thumbnails = []
         duration, size = self._parse_metadata(filename)
+        _ThumbnailMixin.__init__(self, size)
         self.tempdir = TemporaryDirectory()
+        self.duration = int(duration + 1)
         self.filename = filename
-        self.duration = duration
-        self.size = size
+        self._vtt_name = filename + ".vtt"
+        self._image_name = filename + ".png"
 
     def get_compress(self):
         return self.__compress
@@ -40,8 +46,14 @@ class FFMpeg:
             raise TypeError("Interval must be an integer.")
         self.__interval = interval
 
+    def get_basepath(self):
+        return self.__basepath
+
+    def set_basepath(self, path):
+        self.__basepath = str(path)
+
     @staticmethod
-    def calc_columns(frames_count, width, height):
+    def _calc_columns(frames_count, width, height):
         ratio = 16 / 9
         for col in range(1, frames_count):
             if (col * width) / (frames_count // col * height) > ratio:
@@ -77,7 +89,7 @@ class FFMpeg:
         duration, size = meta.get("duration"), meta.get("size")
 
         if not all((duration, size)):
-            cmd = (FFMPEG_BINARY, "-hide_banner", "-i", filename)
+            cmd = (ffmpeg_bin, "-hide_banner", "-i", filename)
 
             popen_params = self._cross_platform_popen_params()
             process = subprocess.Popen(cmd, **popen_params)
@@ -95,7 +107,7 @@ class FFMpeg:
         _timestamp = str(timedelta(seconds=start_time))
 
         cmd = (
-            FFMPEG_BINARY,
+            ffmpeg_bin,
             "-ss", _timestamp,
             "-i", _input_file,
             "-loglevel", "error",
@@ -107,30 +119,27 @@ class FFMpeg:
         subprocess.Popen(cmd).wait()
 
     def extract_frames(self):
-        _intervals = range(0, int(self.duration), self.get_interval())
+        _intervals = range(0, self.duration, self.get_interval())
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self._extract_frame, _intervals)
 
     def join_frames(self):
-        width, height = self.size
-
-        _min_width = 300
-        _min_height = math.ceil(_min_width * height / width)
-
-        width = max(_min_width, width * self.__compress / 10)
-        height = max(_min_height, height * self.__compress / 10)
-
         line, column = 0, 0
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
-        frames_count = len(range(0, int(self.duration), self.get_interval()))
-        columns = self.calc_columns(frames_count, width, height)
-        master_height = height * int(math.ceil(float(frames_count) / columns))
-        master = Image.new(mode="RGBA", size=(width * columns, master_height))
+        frames_count = len(range(0, self.duration, self.get_interval()))
+        columns = self._calc_columns(frames_count, self.width, self.height)
+        master_height = self.height * int(math.ceil(float(frames_count) / columns))
+        master = Image.new(mode="RGBA", size=(self.width * columns, master_height))
 
-        for frame in frames:
+        for n, frame in enumerate(frames):
             with Image.open(frame) as image:
-                x, y = width * column, height * line
-                image = image.resize((width, height), Image.ANTIALIAS)
+                x, y = self.width * column, self.height * line
+
+                start = n * self.get_interval()
+                end = (n + 1) * self.get_interval()
+                self.thumbnails.append((start, end, x, y))
+
+                image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
 
                 column += 1
@@ -139,5 +148,22 @@ class FFMpeg:
                     line += 1
                     column = 0
 
-        master.save(self.filename + ".png")
+        master.save(self._image_name)
         self.tempdir.cleanup()
+
+    def to_vtt(self):
+        def _format_time(seconds):
+            return "0%s.000" % str(timedelta(seconds=seconds))
+
+        _lines = ["WEBVTT\n\n"]
+        _img_src = self.get_basepath() + self._image_name
+
+        for start, end, x, y in self.thumbnails:
+            _thumbnail = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
+                _format_time(start), _format_time(end),
+                _img_src, x, y, self.width, self.height
+            )
+            _lines.append(_thumbnail)
+
+        with open(self._vtt_name, "w") as vtt:
+            vtt.writelines(_lines)
