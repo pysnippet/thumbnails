@@ -1,27 +1,4 @@
 import math
-from abc import ABCMeta, abstractmethod
-
-
-class ThumbnailFormat(metaclass=ABCMeta):
-    @staticmethod
-    @abstractmethod
-    def start_time():
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def end_time():
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def x_pos():
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def y_pos():
-        ...
 
 
 class _ThumbnailMixin:
@@ -52,39 +29,3 @@ class _ThumbnailMixin:
         if not self._h:
             self._h = max(self._min_height, self._height * self.get_compress())
         return self._h
-
-
-class VTT(ThumbnailFormat):
-    @staticmethod
-    def start_time():
-        pass
-
-    @staticmethod
-    def end_time():
-        pass
-
-    @staticmethod
-    def x_pos():
-        pass
-
-    @staticmethod
-    def y_pos():
-        pass
-
-
-class JSON(ThumbnailFormat):
-    @staticmethod
-    def start_time():
-        pass
-
-    @staticmethod
-    def end_time():
-        pass
-
-    @staticmethod
-    def x_pos():
-        pass
-
-    @staticmethod
-    def y_pos():
-        pass
