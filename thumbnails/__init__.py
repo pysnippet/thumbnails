@@ -1,1 +1,1 @@
-from .ffmpeg import FFMpeg
+from .thumbnails import Thumbnails
