@@ -4,7 +4,7 @@ from thumbnails import Thumbnails
 
 # Read from the program arguments.
 compress = 1
-interval = 20
+interval = .5
 basepath = "/stc/"
 
 files = ["valerian-1080p.avi", "valerian-1080p.mkv", "valerian-1080p.mov", "valerian-1080p.mp4",

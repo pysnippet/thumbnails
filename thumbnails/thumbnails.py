@@ -99,7 +99,7 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
 
     def _extract_frame(self, start_time):
         _input_file = self.filename
-        _output_file = "%s/%d-%s.png" % (self.tempdir.name, start_time, self.filename)
+        _output_file = "%s/%s-%s.png" % (self.tempdir.name, start_time, self.filename)
         _timestamp = str(timedelta(seconds=start_time))
 
         cmd = (
@@ -148,8 +148,9 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         self.tempdir.cleanup()
 
     def to_vtt(self):
-        def _format_time(seconds):
-            return "0%s.000" % str(timedelta(seconds=seconds))
+        def _format_time(secs):
+            delta = timedelta(seconds=secs)
+            return ("0%s.000" % delta)[:12]
 
         _lines = ["WEBVTT\n\n"]
         _img_src = self.basepath + self._image_name
