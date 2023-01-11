@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 
 from PIL import Image
 from imageio_ffmpeg import get_ffmpeg_exe
+from numpy import arange
 
 from .ffmpeg import _FFMpeg
 
@@ -28,26 +29,27 @@ class _ThumbnailMixin:
         self._min_width = _min_width
         self._min_height = _min_height
 
-    def get_compress(self):
+    @property
+    def compress(self):
         raise NotImplementedError
 
     @property
     def width(self):
         if not self._w:
-            self._w = max(self._min_width, self._width * self.get_compress())
+            self._w = max(self._min_width, self._width * self.compress)
         return self._w
 
     @property
     def height(self):
         if not self._h:
-            self._h = max(self._min_height, self._height * self.get_compress())
+            self._h = max(self._min_height, self._height * self.compress)
         return self._h
 
 
 class Thumbnails(_ThumbnailMixin, _FFMpeg):
     def __init__(self, filename):
-        self.__compress = 1
-        self.__interval = 1
+        self.__compress = 1.
+        self.__interval = 1.
         self.__basepath = ""
         self.thumbnails = []
         self.tempdir = TemporaryDirectory()
@@ -58,27 +60,35 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         _FFMpeg.__init__(self, filename)
         _ThumbnailMixin.__init__(self, self.size)
 
-    def get_compress(self):
+    @property
+    def compress(self):
         return self.__compress
 
-    def set_compress(self, compress):
-        if type(compress) not in (int, float):
-            raise TypeError("Compress must be a number.")
-        self.__compress = compress
+    @compress.setter
+    def compress(self, value):
+        try:
+            self.__compress = float(value)
+        except ValueError:
+            raise ValueError("Compress must be a number.")
 
-    def get_interval(self):
+    @property
+    def interval(self):
         return self.__interval
 
-    def set_interval(self, interval):
-        if not isinstance(interval, int):
-            raise TypeError("Interval must be an integer.")
-        self.__interval = interval
+    @interval.setter
+    def interval(self, value):
+        try:
+            self.__interval = float(value)
+        except ValueError:
+            raise ValueError("Interval must be a number.")
 
-    def get_basepath(self):
+    @property
+    def basepath(self):
         return self.__basepath
 
-    def set_basepath(self, path):
-        self.__basepath = str(path)
+    @basepath.setter
+    def basepath(self, value):
+        self.__basepath = value
 
     @staticmethod
     def _calc_columns(frames_count, width, height):
@@ -105,14 +115,14 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         subprocess.Popen(cmd).wait()
 
     def extract_frames(self):
-        _intervals = range(0, self.duration, self.get_interval())
+        _intervals = arange(0, self.duration, self.interval)
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self._extract_frame, _intervals)
 
     def join_frames(self):
         line, column = 0, 0
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
-        frames_count = len(range(0, self.duration, self.get_interval()))
+        frames_count = len(arange(0, self.duration, self.interval))
         columns = self._calc_columns(frames_count, self.width, self.height)
         master_height = self.height * int(math.ceil(float(frames_count) / columns))
         master = Image.new(mode="RGBA", size=(self.width * columns, master_height))
@@ -121,8 +131,8 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
             with Image.open(frame) as image:
                 x, y = self.width * column, self.height * line
 
-                start = n * self.get_interval()
-                end = (n + 1) * self.get_interval()
+                start = n * self.interval
+                end = (n + 1) * self.interval
                 self.thumbnails.append((start, end, x, y))
 
                 image = image.resize((self.width, self.height), Image.ANTIALIAS)
@@ -142,7 +152,7 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
             return "0%s.000" % str(timedelta(seconds=seconds))
 
         _lines = ["WEBVTT\n\n"]
-        _img_src = self.get_basepath() + self._image_name
+        _img_src = self.basepath + self._image_name
 
         for start, end, x, y in self.thumbnails:
             _thumbnail = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (

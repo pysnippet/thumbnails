@@ -1,6 +1,6 @@
 import concurrent.futures
 
-from thumbnails import FFMpeg
+from thumbnails import Thumbnails
 
 # Read from the program arguments.
 compress = 1
@@ -12,9 +12,9 @@ files = ["valerian-1080p.avi", "valerian-1080p.mkv", "valerian-1080p.mov", "vale
 
 
 def worker(video):
-    video.set_compress(compress)
-    video.set_interval(interval)
-    video.set_basepath(basepath)
+    video.compress = compress
+    video.interval = interval
+    video.basepath = basepath
     video.extract_frames()
     video.join_frames()
     video.to_vtt()
@@ -22,7 +22,7 @@ def worker(video):
 
 def main():
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        executor.map(worker, map(FFMpeg, files))
+        executor.map(worker, map(Thumbnails, files))
 
 
 if __name__ == "__main__":
