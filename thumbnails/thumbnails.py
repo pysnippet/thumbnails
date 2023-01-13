@@ -8,11 +8,20 @@ from tempfile import TemporaryDirectory
 
 from PIL import Image
 from imageio_ffmpeg import get_ffmpeg_exe
-from numpy import arange
 
 from .ffmpeg import _FFMpeg
 
 ffmpeg_bin = get_ffmpeg_exe()
+
+
+def arange(start, stop, step):
+    def _generator():
+        nonlocal start
+        while start < stop:
+            yield start
+            start += step
+
+    return tuple(_generator())
 
 
 class _ThumbnailMixin:
@@ -99,7 +108,7 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
 
     def _extract_frame(self, start_time):
         _input_file = self.filename
-        _output_file = "%s/%d-%s.png" % (self.tempdir.name, start_time, self.filename)
+        _output_file = "%s/%s-%s.png" % (self.tempdir.name, start_time, self.filename)
         _timestamp = str(timedelta(seconds=start_time))
 
         cmd = (
@@ -124,7 +133,7 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
         frames_count = len(arange(0, self.duration, self.interval))
         columns = self._calc_columns(frames_count, self.width, self.height)
-        master_height = self.height * int(math.ceil(float(frames_count) / columns))
+        master_height = self.height * math.ceil(frames_count / columns)
         master = Image.new(mode="RGBA", size=(self.width * columns, master_height))
 
         for n, frame in enumerate(frames):
@@ -148,8 +157,9 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         self.tempdir.cleanup()
 
     def to_vtt(self):
-        def _format_time(seconds):
-            return "0%s.000" % str(timedelta(seconds=seconds))
+        def _format_time(secs):
+            delta = timedelta(seconds=secs)
+            return ("0%s.000" % delta)[:12]
 
         _lines = ["WEBVTT\n\n"]
         _img_src = self.basepath + self._image_name
