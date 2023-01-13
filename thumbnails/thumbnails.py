@@ -8,11 +8,20 @@ from tempfile import TemporaryDirectory
 
 from PIL import Image
 from imageio_ffmpeg import get_ffmpeg_exe
-from numpy import arange
 
 from .ffmpeg import _FFMpeg
 
 ffmpeg_bin = get_ffmpeg_exe()
+
+
+def arange(start, stop, step):
+    def _generator():
+        nonlocal start
+        while start < stop:
+            yield start
+            start += step
+
+    return tuple(_generator())
 
 
 class _ThumbnailMixin:
@@ -124,7 +133,7 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
         frames_count = len(arange(0, self.duration, self.interval))
         columns = self._calc_columns(frames_count, self.width, self.height)
-        master_height = self.height * int(math.ceil(float(frames_count) / columns))
+        master_height = self.height * math.ceil(frames_count / columns)
         master = Image.new(mode="RGBA", size=(self.width * columns, master_height))
 
         for n, frame in enumerate(frames):
