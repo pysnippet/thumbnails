@@ -56,10 +56,14 @@ class _ThumbnailMixin:
 
 
 class Thumbnails(_ThumbnailMixin, _FFMpeg):
-    def __init__(self, filename):
-        self.__compress = 1.
-        self.__interval = 1.
-        self.__basepath = ""
+    def __init__(self, filename, compress, interval, basepath):
+        self.__compress = float(compress)
+        self.__interval = float(interval)
+        self.__basepath = basepath
+
+        if self.__compress <= 0 or self.__compress > 1:
+            raise ValueError("Compress must be between 0 and 1.")
+
         self.thumbnails = []
         self.tempdir = TemporaryDirectory()
         self.filename = filename
@@ -73,31 +77,13 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
     def compress(self):
         return self.__compress
 
-    @compress.setter
-    def compress(self, value):
-        try:
-            self.__compress = float(value)
-        except ValueError:
-            raise ValueError("Compress must be a number.")
-
     @property
     def interval(self):
         return self.__interval
 
-    @interval.setter
-    def interval(self, value):
-        try:
-            self.__interval = float(value)
-        except ValueError:
-            raise ValueError("Interval must be a number.")
-
     @property
     def basepath(self):
         return self.__basepath
-
-    @basepath.setter
-    def basepath(self, value):
-        self.__basepath = value
 
     @staticmethod
     def _calc_columns(frames_count, width, height):
