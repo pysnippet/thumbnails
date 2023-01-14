@@ -6,24 +6,26 @@ import click
 from . import DEFAULT_BASEPATH
 from . import DEFAULT_COMPRESS
 from . import DEFAULT_INTERVAL
+from . import ThumbnailFactory
 from . import Thumbnails
 from . import __version__
 
 
 def worker(video):
-    video.extract_frames()
-    video.join_frames()
-    video.to_vtt()
+    print(ThumbnailFactory.get_thumbnail("vtt").generate(video))
+    # video.extract_frames()
+    # video.join_frames()
+    # video.to_vtt()
 
 
 class _ThumbnailsCLI(click.Command):
     def format_usage(self, ctx, formatter):
-        pieces = (
+        usages = (
             "[OPTIONS] INPUT_DIR OUTPUT_DIR",
             "[OPTIONS] INPUT_FILE OUTPUT_FILE",
             "[OPTIONS] INPUT_FILES... OUTPUT_DIR",
         )
-        formatter.write_usage(ctx.command_path, "\n\t\t\t".join(pieces), prefix="Usages: ")
+        formatter.write_usage(ctx.command_path, "\n\t\t\t".join(usages), prefix="Usages: ")
 
 
 @click.command(cls=_ThumbnailsCLI)
