@@ -2,6 +2,7 @@ from .formatter import ThumbnailFactory
 from .formatter import ThumbnailFormat
 from .thumbnails import Thumbnails
 
+DEFAULT_AS = "vtt"
 DEFAULT_COMPRESS = 1.
 DEFAULT_INTERVAL = 1.
 DEFAULT_BASEPATH = ""
