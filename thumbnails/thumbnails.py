@@ -6,7 +6,6 @@ import subprocess
 from datetime import timedelta
 from tempfile import TemporaryDirectory
 
-from PIL import Image
 from imageio_ffmpeg import get_ffmpeg_exe
 
 from .ffmpeg import _FFMpeg
@@ -56,15 +55,16 @@ class _ThumbnailMixin:
 
 
 class Thumbnails(_ThumbnailMixin, _FFMpeg):
-    def __init__(self, filename):
-        self.__compress = 1.
-        self.__interval = 1.
-        self.__basepath = ""
-        self.thumbnails = []
-        self.tempdir = TemporaryDirectory()
+    def __init__(self, filename, compress, interval, basepath):
+        self.__compress = float(compress)
+        self.__interval = float(interval)
+        self.__basepath = basepath
+
+        if self.__compress <= 0 or self.__compress > 1:
+            raise ValueError("Compress must be between 0 and 1.")
+
         self.filename = filename
-        self._vtt_name = filename + ".vtt"
-        self._image_name = filename + ".png"
+        self.tempdir = TemporaryDirectory()
 
         _FFMpeg.__init__(self, filename)
         _ThumbnailMixin.__init__(self, self.size)
@@ -73,34 +73,16 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
     def compress(self):
         return self.__compress
 
-    @compress.setter
-    def compress(self, value):
-        try:
-            self.__compress = float(value)
-        except ValueError:
-            raise ValueError("Compress must be a number.")
-
     @property
     def interval(self):
         return self.__interval
-
-    @interval.setter
-    def interval(self, value):
-        try:
-            self.__interval = float(value)
-        except ValueError:
-            raise ValueError("Interval must be a number.")
 
     @property
     def basepath(self):
         return self.__basepath
 
-    @basepath.setter
-    def basepath(self, value):
-        self.__basepath = value
-
     @staticmethod
-    def _calc_columns(frames_count, width, height):
+    def calc_columns(frames_count, width, height):
         ratio = 16 / 9
         for col in range(1, frames_count):
             if (col * width) / (frames_count // col * height) > ratio:
@@ -108,8 +90,8 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
 
     def _extract_frame(self, start_time):
         _input_file = self.filename
-        _output_file = "%s/%s-%s.png" % (self.tempdir.name, start_time, self.filename)
         _timestamp = str(timedelta(seconds=start_time))
+        _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, self.filename)
 
         cmd = (
             ffmpeg_bin,
@@ -128,48 +110,24 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self._extract_frame, _intervals)
 
-    def join_frames(self):
+    def thumbnails(self, master_size=False):
         line, column = 0, 0
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
         frames_count = len(arange(0, self.duration, self.interval))
-        columns = self._calc_columns(frames_count, self.width, self.height)
-        master_height = self.height * math.ceil(frames_count / columns)
-        master = Image.new(mode="RGBA", size=(self.width * columns, master_height))
+        columns = self.calc_columns(frames_count, self.width, self.height)
+
+        if master_size:
+            yield self.width * columns, self.height * math.ceil(frames_count / columns)
 
         for n, frame in enumerate(frames):
-            with Image.open(frame) as image:
-                x, y = self.width * column, self.height * line
+            x, y = self.width * column, self.height * line
 
-                start = n * self.interval
-                end = (n + 1) * self.interval
-                self.thumbnails.append((start, end, x, y))
+            start = n * self.interval
+            end = (n + 1) * self.interval
+            yield frame, start, end, x, y
 
-                image = image.resize((self.width, self.height), Image.ANTIALIAS)
-                master.paste(image, (x, y))
+            column += 1
 
-                column += 1
-
-                if column == columns:
-                    line += 1
-                    column = 0
-
-        master.save(self._image_name)
-        self.tempdir.cleanup()
-
-    def to_vtt(self):
-        def _format_time(secs):
-            delta = timedelta(seconds=secs)
-            return ("0%s.000" % delta)[:12]
-
-        _lines = ["WEBVTT\n\n"]
-        _img_src = self.basepath + self._image_name
-
-        for start, end, x, y in self.thumbnails:
-            _thumbnail = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
-                _format_time(start), _format_time(end),
-                _img_src, x, y, self.width, self.height
-            )
-            _lines.append(_thumbnail)
-
-        with open(self._vtt_name, "w") as vtt:
-            vtt.writelines(_lines)
+            if column == columns:
+                line += 1
+                column = 0
