@@ -1,4 +1,8 @@
+import json
+import os
+import shutil
 from datetime import timedelta
+from distutils.dir_util import copy_tree
 
 from PIL import Image
 
@@ -54,17 +58,37 @@ class VTT(ThumbnailFormat):
             )
             _lines.append(_thumbnail)
 
-        with open(self.output_format, "w") as vtt:
-            vtt.writelines(_lines)
+        with open(self.output_format, "w") as fp:
+            fp.writelines(_lines)
 
 
 @register_format("json")
 class JSON(ThumbnailFormat):
+    def __init__(self, video):
+        super().__init__(video)
+        self._outdir = "outdir"  # temp dirname
+
     def prepare_thumbnails(self):
-        raise NotImplementedError
+        if os.path.isdir(self._outdir):
+            shutil.rmtree(self._outdir)
+        copy_tree(self.tempdir.name, self._outdir)
+        self.tempdir.cleanup()
 
     def generate(self):
-        raise NotImplementedError
+        _content = {}
+
+        for frame, start, end, x, y in self.video.thumbnails():
+            frame = self._outdir + os.sep + os.path.split(frame)[1]
+            with Image.open(frame) as image:
+                image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
+                _thumbnail = {
+                    "src": self.basepath + frame,
+                    "width": "%spx" % self.width,
+                }
+                _content[int(start)] = _thumbnail
+
+        with open(self.output_format, "w") as fp:
+            json.dump(_content, fp, indent=2)
 
 
 __version__ = "v1.0"
