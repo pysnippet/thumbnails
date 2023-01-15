@@ -90,8 +90,8 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
 
     def _extract_frame(self, start_time):
         _input_file = self.filename
-        _output_file = "%s/%s-%s.png" % (self.tempdir.name, start_time, self.filename)
         _timestamp = str(timedelta(seconds=start_time))
+        _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, self.filename)
 
         cmd = (
             ffmpeg_bin,
