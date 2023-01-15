@@ -14,10 +14,10 @@ from . import __version__
 
 
 def worker(video, as_):
-    print(ThumbnailFactory.get_thumbnail(as_).generate(video))
-    # video.extract_frames()
-    # video.join_frames()
-    # video.to_vtt()
+    video.extract_frames()
+    formatter = ThumbnailFactory.get_thumbnail(as_, video)
+    formatter.prepare_thumbnails()
+    formatter.generate()
 
 
 class _ThumbnailsCLI(click.Command):
