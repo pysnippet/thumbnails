@@ -24,8 +24,8 @@ class ThumbnailFactory:
     thumbnails = {}
 
     @classmethod
-    def get_formatter(cls, typename, *args, **kwargs) -> ThumbnailFormat:
+    def create_formatter(cls, typename, *args, **kwargs) -> ThumbnailFormat:
         try:
             return cls.thumbnails[typename](*args, **kwargs)
         except KeyError:
-            raise ValueError("Thumbnail type '%s' is not supported." % typename)
+            raise ValueError("Thumbnail format '%s' is not supported." % typename)

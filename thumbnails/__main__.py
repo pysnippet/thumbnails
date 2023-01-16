@@ -15,7 +15,7 @@ from . import __version__
 
 def worker(video, as_):
     video.extract_frames()
-    formatter = ThumbnailFactory.get_formatter(as_, video)
+    formatter = ThumbnailFactory.create_formatter(as_, video)
     formatter.prepare_thumbnails()
     formatter.generate()
 
