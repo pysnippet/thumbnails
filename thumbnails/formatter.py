@@ -24,7 +24,7 @@ class ThumbnailFactory:
     thumbnails = {}
 
     @classmethod
-    def get_thumbnail(cls, typename, *args, **kwargs) -> ThumbnailFormat:
+    def get_formatter(cls, typename, *args, **kwargs) -> ThumbnailFormat:
         try:
             return cls.thumbnails[typename](*args, **kwargs)
         except KeyError:
