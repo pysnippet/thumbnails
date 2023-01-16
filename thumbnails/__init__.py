@@ -21,6 +21,7 @@ def register_format(typename):
     def _registrator(cls: ThumbnailFormat):
         cls.extension = typename
         ThumbnailFactory.thumbnails[typename] = cls
+        return cls
 
     return _registrator
 
