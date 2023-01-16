@@ -93,4 +93,11 @@ class JSON(ThumbnailFormat):
 
 
 __version__ = "v1.0"
-__all__ = (Thumbnails,)
+__all__ = (
+    ThumbnailFactory,
+    register_format,
+    ThumbnailFormat,
+    Thumbnails,
+    JSON,
+    VTT,
+)
