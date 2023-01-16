@@ -1,4 +1,5 @@
 import concurrent.futures
+import functools
 import glob
 import math
 import os
@@ -13,6 +14,7 @@ from .ffmpeg import _FFMpeg
 ffmpeg_bin = get_ffmpeg_exe()
 
 
+@functools.cache
 def arange(start, stop, step):
     def _generator():
         nonlocal start
