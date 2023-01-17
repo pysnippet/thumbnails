@@ -9,6 +9,8 @@ ffmpeg_bin = get_ffmpeg_exe()
 
 
 class _FFMpeg:
+    """This class is used to parse the metadata of a video file."""
+
     def __init__(self, filename):
         duration, self.size = self._parse_metadata(filename)
         self.duration = int(duration + 1)
@@ -27,6 +29,7 @@ class _FFMpeg:
 
     @staticmethod
     def _parse_duration(stdout):
+        """Parse the duration of a video from stdout."""
         duration_regex = r"duration[^\n]+([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9])"
         time = re.search(duration_regex, stdout, re.M | re.I).group(1)
         time = (float(part.replace(",", ".")) for part in time.split(":"))
@@ -34,15 +37,20 @@ class _FFMpeg:
 
     @staticmethod
     def _parse_size(stdout):
+        """Parse the size of a video from stdout."""
         size_regex = r"\s(\d+)x(\d+)[,\s]"
         match_size = re.search(size_regex, stdout, re.M)
         return tuple(map(int, match_size.groups()))
 
     def _parse_metadata(self, filename):
+        """Parse the metadata of a video file."""
         meta = immeta(filename)
         duration, size = meta.get("duration"), meta.get("size")
 
         if not all((duration, size)):
+            # Parse the metadata of the video formats
+            # that are not supported by imageio.
+
             cmd = (ffmpeg_bin, "-hide_banner", "-i", filename)
 
             popen_params = self._cross_platform_popen_params()

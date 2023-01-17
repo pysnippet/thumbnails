@@ -1,10 +1,13 @@
 class ThumbnailFormat:
+    """The interface of the thumbnails' final output format generator."""
+
     extension = None
 
     def __init__(self, video):
         self.video = video
 
     def __getattr__(self, item):
+        """Delegate all other attributes to the video."""
         return getattr(self.video, item)
 
     @property
@@ -20,11 +23,14 @@ class ThumbnailFormat:
         raise NotImplementedError
 
 
-class ThumbnailFactory:
+class FormatterFactory:
+    """A factory for creating thumbnail formatter."""
+
     thumbnails = {}
 
     @classmethod
     def create_formatter(cls, typename, *args, **kwargs) -> ThumbnailFormat:
+        """Create a new thumbnail formatter by the given typename."""
         try:
             return cls.thumbnails[typename](*args, **kwargs)
         except KeyError:
