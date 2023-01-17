@@ -1,4 +1,5 @@
 import concurrent.futures
+import functools
 import glob
 import math
 import os
@@ -13,7 +14,10 @@ from .ffmpeg import _FFMpeg
 ffmpeg_bin = get_ffmpeg_exe()
 
 
+@functools.cache
 def arange(start, stop, step):
+    """Roughly equivalent to numpy.arange."""
+
     def _generator():
         nonlocal start
         while start < stop:
@@ -24,10 +28,9 @@ def arange(start, stop, step):
 
 
 class _ThumbnailMixin:
-    def __init__(self, size):
-        self._w = None
-        self._h = None
+    """This mixin class is used to optimally calculate the size of a thumbnail frame."""
 
+    def __init__(self, size):
         width, height = size
         _min_width = 300
         _min_height = math.ceil(_min_width * height / width)
@@ -39,22 +42,23 @@ class _ThumbnailMixin:
 
     @property
     def compress(self):
+        """Defines an interface for the compress property."""
         raise NotImplementedError
 
-    @property
+    @functools.cached_property
     def width(self):
-        if not self._w:
-            self._w = max(self._min_width, self._width * self.compress)
-        return self._w
+        """Calculates and caches the width."""
+        return max(self._min_width, self._width * self.compress)
 
-    @property
+    @functools.cached_property
     def height(self):
-        if not self._h:
-            self._h = max(self._min_height, self._height * self.compress)
-        return self._h
+        """Calculates and caches the height."""
+        return max(self._min_height, self._height * self.compress)
 
 
 class Thumbnails(_ThumbnailMixin, _FFMpeg):
+    """The main class for processing the thumbnail generation of a video."""
+
     def __init__(self, filename, compress, interval, basepath):
         self.__compress = float(compress)
         self.__interval = float(interval)
@@ -83,12 +87,14 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
 
     @staticmethod
     def calc_columns(frames_count, width, height):
+        """Calculates an optimal number of columns for 16:9 aspect ratio."""
         ratio = 16 / 9
         for col in range(1, frames_count):
             if (col * width) / (frames_count // col * height) > ratio:
                 return col
 
     def _extract_frame(self, start_time):
+        """Extracts a single frame from the video by the given time."""
         _input_file = self.filename
         _timestamp = str(timedelta(seconds=start_time))
         _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, self.filename)
@@ -106,11 +112,25 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         subprocess.Popen(cmd).wait()
 
     def extract_frames(self):
+        """Extracts the frames from the video by given intervals."""
         _intervals = arange(0, self.duration, self.interval)
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(self._extract_frame, _intervals)
 
     def thumbnails(self, master_size=False):
+        """This generator function yields a thumbnail on each iteration.
+
+        A thumbnail is a tuple of data describing the current frame.
+        The thumbnail structure is (frame, start, end, x, y) where:
+            - frame: Filename of the current frame in temp-files.
+            - start: The start point of the time range the frame belongs to.
+            - end: The end point of the time range the frame belongs to.
+            - x: The X coordinate of the frame in the final image.
+            - y: The Y coordinate of the frame in the final image.
+
+        :param master_size:
+            If True, the master size will be yielded on the first iteration. Default is False.
+        """
         line, column = 0, 0
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
         frames_count = len(arange(0, self.duration, self.interval))

@@ -6,7 +6,7 @@ from distutils.dir_util import copy_tree
 
 from PIL import Image
 
-from .formatter import ThumbnailFactory
+from .formatter import FormatterFactory
 from .formatter import ThumbnailFormat
 from .thumbnails import Thumbnails
 from .thumbnails import arange
@@ -18,15 +18,24 @@ DEFAULT_BASEPATH = ""
 
 
 def register_format(typename):
-    def _registrator(cls: ThumbnailFormat):
+    """Register a new thumbnail format to the factory."""
+
+    def _registrator(cls):
+        if not issubclass(cls, ThumbnailFormat):
+            raise ValueError("Thumbnail format must implement"
+                             "the ThumbnailFormat interface.")
+
         cls.extension = typename
-        ThumbnailFactory.thumbnails[typename] = cls
+        FormatterFactory.thumbnails[typename] = cls
+        return cls
 
     return _registrator
 
 
 @register_format("vtt")
 class VTT(ThumbnailFormat):
+    """Implements the methods for generating thumbnails in the WebVTT format."""
+
     def __init__(self, video):
         super().__init__(video)
         self._master_name = self.filename + ".png"
@@ -64,6 +73,8 @@ class VTT(ThumbnailFormat):
 
 @register_format("json")
 class JSON(ThumbnailFormat):
+    """Implements the methods for generating thumbnails in the JSON format."""
+
     def __init__(self, video):
         super().__init__(video)
         self._outdir = "outdir"  # temp dirname
@@ -92,4 +103,11 @@ class JSON(ThumbnailFormat):
 
 
 __version__ = "v1.0"
-__all__ = (Thumbnails,)
+__all__ = (
+    FormatterFactory,
+    register_format,
+    ThumbnailFormat,
+    Thumbnails,
+    JSON,
+    VTT,
+)
