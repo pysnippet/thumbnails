@@ -1,5 +1,5 @@
-class ThumbnailFormat:
-    """The interface of the thumbnails' final output format generator."""
+class FileFormatter:
+    """Formatter interface any thumbnail describing file format should implement."""
 
     extension = None
 
@@ -29,9 +29,9 @@ class FormatterFactory:
     thumbnails = {}
 
     @classmethod
-    def create_formatter(cls, typename, *args, **kwargs) -> ThumbnailFormat:
+    def create_formatter(cls, typename, *args, **kwargs) -> FileFormatter:
         """Create a new thumbnail formatter by the given typename."""
         try:
             return cls.thumbnails[typename](*args, **kwargs)
         except KeyError:
-            raise ValueError("Thumbnail format '%s' is not supported." % typename)
+            raise ValueError("The formatter type '%s' is not registered." % typename)
