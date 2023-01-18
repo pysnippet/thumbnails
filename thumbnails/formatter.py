@@ -1,5 +1,8 @@
-class FileFormatter:
-    """Formatter interface any thumbnail describing file format should implement."""
+from abc import ABCMeta, abstractmethod
+
+
+class FileFormatter(metaclass=ABCMeta):
+    """Any thumbnail describing format should implement the base Formatter."""
 
     extension = None
 
@@ -11,16 +14,17 @@ class FileFormatter:
         return getattr(self.video, item)
 
     @property
-    def output_format(self):
+    def thumbnail_file(self):
+        """Return the name of the thumbnail file."""
         return "%s.%s" % (self.filename, self.extension)
 
+    @abstractmethod
     def prepare_thumbnails(self):
         """Prepare the thumbnails before generating the output."""
-        raise NotImplementedError
 
+    @abstractmethod
     def generate(self):
         """Generate the thumbnails for the given video."""
-        raise NotImplementedError
 
 
 class FormatterFactory:

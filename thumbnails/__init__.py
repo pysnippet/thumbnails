@@ -66,7 +66,7 @@ class VTTFormatter(FileFormatter):
             )
             _lines.append(_thumbnail)
 
-        with open(self.output_format, "w") as fp:
+        with open(self.thumbnail_file, "w") as fp:
             fp.writelines(_lines)
 
 
@@ -97,7 +97,7 @@ class JSONFormatter(FileFormatter):
                 }
                 _content[int(start)] = _thumbnail
 
-        with open(self.output_format, "w") as fp:
+        with open(self.thumbnail_file, "w") as fp:
             json.dump(_content, fp, indent=2)
 
 

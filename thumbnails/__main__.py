@@ -33,9 +33,12 @@ class _ThumbnailsCLI(click.Command):
         formatter.write_usage(ctx.command_path, "\n\t\t\t".join(usages), prefix="Usages: ")
 
 
+# This defines a set of supported values for the particular option of the CLI.
+_type = click.Choice(FormatterFactory.thumbnails.keys(), case_sensitive=False)
+
+
 @click.command(cls=_ThumbnailsCLI)
-@click.option("--as", "-F", default=DEFAULT_AS, help="Output format. Default is %s." % DEFAULT_AS,
-              type=click.Choice(FormatterFactory.thumbnails.keys(), case_sensitive=False))
+@click.option("--as", "-F", default=DEFAULT_AS, type=_type, help="Output format. Default is %s." % DEFAULT_AS)
 @click.option("--compress", "-C", default=DEFAULT_COMPRESS, help="The image scale coefficient. A number from 0 to 1.")
 @click.option("--interval", "-I", default=DEFAULT_INTERVAL, help="The interval between neighbor thumbnails in seconds.")
 @click.option("--basepath", "-B", default=DEFAULT_BASEPATH, help="The prefix of the thumbnails path can be customized.")
