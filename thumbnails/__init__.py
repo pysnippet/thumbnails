@@ -40,10 +40,10 @@ class VTTFormatter(FileFormatter):
         self._master_name = self.filename + ".png"
 
     def prepare_thumbnails(self):
-        _thumbnails = self.video.thumbnails(True)
+        _thumbnails = self.thumbnails(True)
         master = Image.new(mode="RGBA", size=next(_thumbnails))
 
-        for frame, start, end, x, y in self.video.thumbnails():
+        for frame, start, end, x, y in self.thumbnails():
             with Image.open(frame) as image:
                 image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
@@ -59,7 +59,7 @@ class VTTFormatter(FileFormatter):
         _lines = ["WEBVTT\n\n"]
         _img_src = self.basepath + self._master_name
 
-        for frame, start, end, x, y in self.video.thumbnails():
+        for frame, start, end, x, y in self.thumbnails():
             _thumbnail = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
                 _format_time(start), _format_time(end),
                 _img_src, x, y, self.width, self.height
@@ -87,7 +87,7 @@ class JSONFormatter(FileFormatter):
     def generate(self):
         _content = {}
 
-        for frame, start, end, x, y in self.video.thumbnails():
+        for frame, start, end, x, y in self.thumbnails():
             frame = self._outdir + os.sep + os.path.split(frame)[1]
             with Image.open(frame) as image:
                 image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
