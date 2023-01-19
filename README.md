@@ -1,4 +1,4 @@
-# Thumbnails (WebVTT/JSON)
+# Thumbnails
 
 WebVTT is a format for displaying timed text tracks (such as subtitles or captions). This format is mainly used for
 showing subtitles on video. But there are some popular open source video players such as Plyr, Video.js, Flowplayer, and
@@ -28,13 +28,13 @@ one must show the highest performance and support various output customization o
 - Image compression opportunity.
 - Provide a well documented python API.
 - Use like a linux command or as a python library.
-- Use `aiofiles` and `multiprocessing.Pool.map` to process the media-files with high performance.
+- Deliver a high performance result.
 
 ## Good single page documentation example
 
 - http://blog.raphaelmutschler.de/mt/
 
-## Usage Examples
+## Usage
 
 ```bash
 thumbnails [options]
@@ -42,9 +42,7 @@ thumbnails [options]
 
 | Option      | Default | Description                                                                                   |
 |-------------|:-------:|-----------------------------------------------------------------------------------------------|
-| `parallel`  | `false` | Process in parallel to make it faster.                                                        |
-| `overwrite` | `false` | Overwrite the existing files with new ones.                                                   |
+| `as`        |  `vtt`  | Output as either `VTT` or `JSON` format.                                                      |
 | `interval`  |    1    | The interval between two thumbnails in seconds.                                               |
 | `compress`  |    1    | The image compression coefficient is a number from 0 to 1 where 1 means _no compression_.     |
-| `as`        |  `vtt`  | Output as either `VTT` or `JSON` format.                                                      |
 | `basepath`  |    -    | In case the relative path does not work, the prefix of the thumbnails path can be customized. |
