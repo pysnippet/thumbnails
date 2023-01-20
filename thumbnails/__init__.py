@@ -103,10 +103,10 @@ class JSONFormatter(FileFormatter):
 
 __version__ = "v1.0"
 __all__ = (
-    register_formatter,
-    FormatterFactory,
-    FileFormatter,
-    JSONFormatter,
-    VTTFormatter,
-    Thumbnails,
+    "register_formatter",
+    "FormatterFactory",
+    "FileFormatter",
+    "JSONFormatter",
+    "VTTFormatter",
+    "Thumbnails",
 )
