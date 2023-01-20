@@ -1,4 +1,7 @@
-# Thumbnails
+# Thumbnails <img src="https://github.com/pysnippet.png" align="right" height="64" />
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ab5414af4c9546fe97ad64365e2a66f0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pysnippet/thumbnails&amp;utm_campaign=Badge_Grade)
+[![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
 
 WebVTT is a format for displaying timed text tracks (such as subtitles or captions). This format is mainly used for
 showing subtitles on video. But there are some popular open source video players such as Plyr, Video.js, Flowplayer, and
