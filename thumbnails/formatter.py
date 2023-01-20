@@ -1,5 +1,8 @@
-class ThumbnailFormat:
-    """The interface of the thumbnails' final output format generator."""
+from abc import ABCMeta, abstractmethod
+
+
+class FileFormatter(metaclass=ABCMeta):
+    """Any thumbnail describing format should implement the base Formatter."""
 
     extension = None
 
@@ -11,16 +14,17 @@ class ThumbnailFormat:
         return getattr(self.video, item)
 
     @property
-    def output_format(self):
+    def thumbnail_file(self):
+        """Return the name of the thumbnail file."""
         return "%s.%s" % (self.filename, self.extension)
 
+    @abstractmethod
     def prepare_thumbnails(self):
         """Prepare the thumbnails before generating the output."""
-        raise NotImplementedError
 
+    @abstractmethod
     def generate(self):
         """Generate the thumbnails for the given video."""
-        raise NotImplementedError
 
 
 class FormatterFactory:
@@ -29,9 +33,9 @@ class FormatterFactory:
     thumbnails = {}
 
     @classmethod
-    def create_formatter(cls, typename, *args, **kwargs) -> ThumbnailFormat:
+    def create_formatter(cls, typename, *args, **kwargs) -> FileFormatter:
         """Create a new thumbnail formatter by the given typename."""
         try:
             return cls.thumbnails[typename](*args, **kwargs)
         except KeyError:
-            raise ValueError("Thumbnail format '%s' is not supported." % typename)
+            raise ValueError("The formatter type '%s' is not registered." % typename)
