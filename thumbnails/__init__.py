@@ -9,7 +9,6 @@ from PIL import Image
 from .formatter import FileFormatter
 from .formatter import FormatterFactory
 from .thumbnails import Thumbnails
-from .thumbnails import arange
 
 DEFAULT_AS = "vtt"
 DEFAULT_COMPRESS = 1.
