@@ -1,50 +1,42 @@
-# Thumbnails (WebVTT/JSON)
+# Thumbnails <img src="https://github.com/pysnippet.png" align="right" height="64" />
 
-WebVTT is a format for displaying timed text tracks (such as subtitles or captions). This format is mainly used for
-showing subtitles on video. But there are some popular open source video players such as Plyr, Video.js, Flowplayer, and
-Fluid Player that use this format for showing the thumbnail preview.
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ab5414af4c9546fe97ad64365e2a66f0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pysnippet/thumbnails&amp;utm_campaign=Badge_Grade)
+[![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
 
-## Similar Projects
+Modern web video players use the **WebVTT** formatted files to preview thumbnails at a pointed time.
+[WebVTT](https://www.w3.org/TR/webvtt1/) is a format for displaying timed text tracks (such as subtitles or captions).
+Open-source video players such as [Plyr](https://github.com/sampotts/plyr), [Video.js](https://github.com/videojs/video.js),
+[Flowplayer](https://github.com/flowplayer/flowplayer), [Fluid Player](https://github.com/fluid-player/fluid-player),
+etc. use this format for showing the thumbnails. Using [external plugins](https://github.com/brightcove/videojs-thumbnails),
+Video.js also can handle **JSON** formatted thumbnails' metadata, and this tool can also generate the corresponding JSON.
 
-- https://github.com/mutschler/mt
-- https://github.com/anshulkharb/thumbnail
-- https://github.com/kevinyang372/py-thumbnail
-- https://github.com/Revan654/movie-thumbnailer-mtn
-- https://github.com/estliberitas/node-thumbnails-webvtt
-- https://github.com/flavioribeiro/video-thumbnail-generator
+## Goals
 
-## NOTES
+[//]: # (TODO: replace this whole section with a "Why use this tool?" section by describing the below clauses.)
 
-_The following notes are thought based
-on [this](https://stackoverflow.com/questions/52900022/how-to-generate-video-preview-thumbnails-for-use-in-videojs)
-StackOverflow answer_
+- [x] Support multiple video formats as an input file
+- [x] Support WebVTT/json output formats
+- [x] Set an interval, etc (options).
+- [ ] [Image compression opportunity.](https://github.com/pysnippet/thumbnails/issues/29)
+- [ ] [Provide a well documented python API.](https://github.com/pysnippet/thumbnails/issues/11)
+- [ ] [Use like a linux command or as a python library.](https://github.com/pysnippet/thumbnails/issues/18)
+- [x] Deliver a high performance result.
 
-[moviethumbnail](https://moviethumbnail.sourceforge.net/) is the coolest one that is available on linux as well. This
-one must show the highest performance and support various output customization options.
-
-- Support multiple video formats as an input file
-- Support WebVTT/json output formats
-- Set an interval, etc (options).
-- Image compression opportunity.
-- Provide a well documented python API.
-- Use like a linux command or as a python library.
-- Use `aiofiles` and `multiprocessing.Pool.map` to process the media-files with high performance.
-
-## Good single page documentation example
-
-- http://blog.raphaelmutschler.de/mt/
-
-## Usage Examples
+## Usage
 
 ```bash
-thumbnails [options]
+thumbnails --help
 ```
 
-| Option      | Default | Description                                                                                   |
-|-------------|:-------:|-----------------------------------------------------------------------------------------------|
-| `parallel`  | `false` | Process in parallel to make it faster.                                                        |
-| `overwrite` | `false` | Overwrite the existing files with new ones.                                                   |
-| `interval`  |    1    | The interval between two thumbnails in seconds.                                               |
-| `compress`  |    1    | The image compression coefficient is a number from 0 to 1 where 1 means _no compression_.     |
-| `as`        |  `vtt`  | Output as either `VTT` or `JSON` format.                                                      |
-| `basepath`  |    -    | In case the relative path does not work, the prefix of the thumbnails path can be customized. |
+## Contribute
+
+Everyone is welcome to contribute to this project. Please read the [contribution guidelines](https://github.com/pysnippet/instructions#readme)
+before you start. Contributions can be considered
+ - Reporting an issue
+ - Opening a pull-request
+ - Suggesting an idea at discussions
+ - Starring the repository if it was helpful
+
+## License
+
+Copyright (C) 2023 Artyom Vancyan. [Apache 2.0](LICENSE)
