@@ -4,19 +4,21 @@ import os
 
 import click
 
-from . import DEFAULT_AS
-from . import DEFAULT_BASEPATH
+from . import DEFAULT_BASE
 from . import DEFAULT_COMPRESS
+from . import DEFAULT_FORMAT
 from . import DEFAULT_INTERVAL
+from . import DEFAULT_OUTPUT
+from . import DEFAULT_SKIP
 from . import FormatterFactory
 from . import Thumbnails
 from . import __version__
 
 
-def worker(video, as_):
+def worker(video, format_):
     """Generate thumbnails for a single video."""
     video.extract_frames()
-    formatter = FormatterFactory.create_formatter(as_, video)
+    formatter = FormatterFactory.create_formatter(format_, video)
     formatter.prepare_thumbnails()
     formatter.generate()
 
@@ -26,9 +28,9 @@ class _ThumbnailsCLI(click.Command):
 
     def format_usage(self, ctx, formatter):
         usages = (
-            "[OPTIONS] INPUT_DIR OUTPUT_DIR",
-            "[OPTIONS] INPUT_FILE OUTPUT_FILE",
-            "[OPTIONS] INPUT_FILES... OUTPUT_DIR",
+            "[OPTIONS] INPUT_DIR",
+            "[OPTIONS] INPUT_FILE",
+            "[OPTIONS] INPUT_FILES...",
         )
         formatter.write_usage(ctx.command_path, "\n\t\t\t".join(usages), prefix="Usages: ")
 
@@ -38,16 +40,18 @@ _type = click.Choice(FormatterFactory.thumbnails.keys(), case_sensitive=False)
 
 
 @click.command(cls=_ThumbnailsCLI)
-@click.option("--as", "-F", default=DEFAULT_AS, type=_type, help="Output format. Default is %s." % DEFAULT_AS)
 @click.option("--compress", "-C", default=DEFAULT_COMPRESS, help="The image scale coefficient. A number from 0 to 1.")
 @click.option("--interval", "-I", default=DEFAULT_INTERVAL, help="The interval between neighbor thumbnails in seconds.")
-@click.option("--basepath", "-B", default=DEFAULT_BASEPATH, help="The prefix of the thumbnails path can be customized.")
+@click.option("--base", "-B", default=DEFAULT_BASE, help="The prefix of the thumbnails path can be customized.")
+@click.option("--skip", "-S", default=DEFAULT_SKIP, help="Skip the existing thumbnails. Default is False.")
+@click.option("--output", "-O", default=DEFAULT_OUTPUT, type=click.Path(), help="The output directory. Default is the current directory.")
+@click.option("--format", "-F", default=DEFAULT_FORMAT, type=_type, help="Output format. Default is %s." % DEFAULT_FORMAT)
 @click.argument("inputs", required=True, type=click.Path(), nargs=-1)
-@click.argument("output", required=True, type=click.Path(), nargs=1)
-@click.version_option(__version__)
-def thumbnails_cli(compress, interval, basepath, inputs, output, **kwargs):
+@click.version_option(__version__, "-V", "--version")
+@click.help_option("-h", "--help")
+def thumbnails_cli(compress, interval, base, inputs, output, skip, **kwargs):
     """TODO: This section will be completed after fixing the issue #26."""
-    as_ = kwargs.pop("as")
+    format_ = kwargs.pop("format")
     output_is_directory = all((len(inputs) > 1, *map(os.path.isfile, inputs))) or os.path.isdir(inputs[0])
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -56,13 +60,13 @@ def thumbnails_cli(compress, interval, basepath, inputs, output, **kwargs):
                 Thumbnails,
                 compress=compress,
                 interval=interval,
-                basepath=basepath
+                basepath=base
             ),
             inputs,
         )
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        executor.map(functools.partial(worker, as_=as_), videos)
+        executor.map(functools.partial(worker, format_=format_), videos)
 
 
 if __name__ == "__main__":

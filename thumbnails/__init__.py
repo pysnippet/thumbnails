@@ -10,10 +10,12 @@ from .formatter import FileFormatter
 from .formatter import FormatterFactory
 from .thumbnails import Thumbnails
 
-DEFAULT_AS = "vtt"
-DEFAULT_COMPRESS = 1.
-DEFAULT_INTERVAL = 1.
-DEFAULT_BASEPATH = ""
+DEFAULT_BASE = ""
+DEFAULT_SKIP = False
+DEFAULT_OUTPUT = "."
+DEFAULT_FORMAT = "vtt"
+DEFAULT_COMPRESS = 1.0
+DEFAULT_INTERVAL = 1.0
 
 
 def register_formatter(typename):
