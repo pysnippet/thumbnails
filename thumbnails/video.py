@@ -27,7 +27,7 @@ def arange(start, stop, step):
     return tuple(_generator())
 
 
-class _ThumbnailMixin:
+class _Frame:
     """This mixin class is used to optimally calculate the size of a thumbnail frame."""
 
     def __init__(self, size):
@@ -56,13 +56,12 @@ class _ThumbnailMixin:
         return max(self._min_height, self._height * self.compress)
 
 
-class Thumbnails(_ThumbnailMixin, _FFMpeg):
+class Video(_FFMpeg, _Frame):
     """The main class for processing the thumbnail generation of a video."""
 
-    def __init__(self, filename, compress, interval, basepath):
+    def __init__(self, filename, compress, interval):
         self.__compress = float(compress)
         self.__interval = float(interval)
-        self.__basepath = basepath
 
         if self.__compress <= 0 or self.__compress > 1:
             raise ValueError("Compress must be between 0 and 1.")
@@ -71,7 +70,7 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
         self.tempdir = TemporaryDirectory()
 
         _FFMpeg.__init__(self, filename)
-        _ThumbnailMixin.__init__(self, self.size)
+        _Frame.__init__(self, self.size)
 
     @property
     def compress(self):
@@ -80,10 +79,6 @@ class Thumbnails(_ThumbnailMixin, _FFMpeg):
     @property
     def interval(self):
         return self.__interval
-
-    @property
-    def basepath(self):
-        return self.__basepath
 
     @staticmethod
     def calc_columns(frames_count, width, height):

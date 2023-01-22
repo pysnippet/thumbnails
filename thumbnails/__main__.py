@@ -10,21 +10,21 @@ from . import DEFAULT_FORMAT
 from . import DEFAULT_INTERVAL
 from . import DEFAULT_OUTPUT
 from . import DEFAULT_SKIP
-from . import FormatterFactory
-from . import Thumbnails
+from . import ThumbnailFactory
+from . import Video
 from . import __version__
 
 
-def worker(video, format_):
+def worker(video, base, format_):
     """Generate thumbnails for a single video."""
     video.extract_frames()
-    formatter = FormatterFactory.create_formatter(format_, video)
-    formatter.prepare_thumbnails()
-    formatter.generate()
+    thumbnail = ThumbnailFactory.create_thumbnail(format_, video, base)
+    thumbnail.prepare_frames()
+    thumbnail.generate()
 
 
 # This defines a set of supported values for the particular option of the CLI.
-_type = click.Choice(FormatterFactory.thumbnails.keys(), case_sensitive=False)
+_type = click.Choice(ThumbnailFactory.thumbnails.keys(), case_sensitive=False)
 
 
 @click.command()
@@ -56,16 +56,22 @@ def thumbnails_cli(compress, interval, base, inputs, output, skip, **kwargs):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         videos = executor.map(
             functools.partial(
-                Thumbnails,
+                Video,
                 compress=compress,
                 interval=interval,
-                basepath=base
             ),
             inputs,
         )
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        executor.map(functools.partial(worker, format_=format_), videos)
+        executor.map(
+            functools.partial(
+                worker,
+                base=base,
+                format_=format_,
+            ),
+            videos,
+        )
 
 
 if __name__ == "__main__":
