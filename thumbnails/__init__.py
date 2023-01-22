@@ -1,4 +1,5 @@
 from .thumbnail import Thumbnail
+from .thumbnail import ThumbnailExistsError
 from .thumbnail import ThumbnailFactory
 from .thumbnail import ThumbnailJSON
 from .thumbnail import ThumbnailVTT
@@ -7,10 +8,11 @@ from .video import Video
 
 __version__ = "v1.0"
 __all__ = (
-    "register_thumbnail",
+    "Thumbnail",
+    "ThumbnailExistsError",
     "ThumbnailFactory",
     "ThumbnailJSON",
     "ThumbnailVTT",
-    "Thumbnail",
+    "register_thumbnail",
     "Video",
 )

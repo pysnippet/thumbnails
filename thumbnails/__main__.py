@@ -2,17 +2,18 @@ import concurrent.futures
 import functools
 import os
 
-import click
-
+from . import ThumbnailExistsError
 from . import ThumbnailFactory
 from . import Video
 from .cli import cli
 
 
-def worker(video, base, format_):
+def worker(video, base, skip, output, typename):
     """Generate thumbnails for a single video."""
-    video.extract_frames()
-    thumbnail = ThumbnailFactory.create_thumbnail(format_, video, base)
+    try:
+        thumbnail = ThumbnailFactory.create_thumbnail(typename, video, base, skip, output)
+    except ThumbnailExistsError:
+        return print("Skipping '%s'" % video.filename)
     thumbnail.prepare_frames()
     thumbnail.generate()
 
@@ -26,11 +27,7 @@ def main(compress=None, interval=None, base=None, inputs=None, output=None, skip
     ]):
         exit("The inputs must be all files or all directories.")
 
-    if not skip and any(map(os.path.exists, inputs)):
-        skip = click.confirm("Are you agree to override?", default=False)
-
-    click.echo("skip %s" % skip)
-    click.echo("output %s" % output)
+    # in case of inputs are directories, convert inputs to a list of files
 
     format_ = kwargs.pop("format")
 
@@ -49,7 +46,9 @@ def main(compress=None, interval=None, base=None, inputs=None, output=None, skip
             functools.partial(
                 worker,
                 base=base,
-                format_=format_,
+                skip=skip,
+                output=output,
+                typename=format_,
             ),
             videos,
         )

@@ -1,10 +1,13 @@
+import functools
 import json
 import os
 import shutil
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
+from abc import abstractmethod
 from datetime import timedelta
 from distutils.dir_util import copy_tree
 
+import click
 from PIL import Image
 
 
@@ -22,21 +25,34 @@ def register_thumbnail(typename):
     return _register_factory
 
 
+class ThumbnailExistsError(Exception):
+    """The thumbnail already exists."""
+
+
 class Thumbnail(metaclass=ABCMeta):
     """Any thumbnail describing format should implement the base Formatter."""
 
     extension = None
 
-    def __init__(self, video, base):
+    def __init__(self, video, base, skip, output):
         self.video = video
         self.base = base
+        self.skip = skip
+        self.output = output
+        self._validate_existence()
+        self.extract_frames()
+
+    def _validate_existence(self):
+        """Checks thumbnail existence and raises ThumbnailExistsError to skip."""
+        if self.skip or os.path.exists(self.filepath) and click.confirm("Are you agree to override?"):
+            raise ThumbnailExistsError
 
     def __getattr__(self, item):
         """Delegate all other attributes to the video."""
         return getattr(self.video, item)
 
-    @property
-    def file(self):
+    @functools.cached_property
+    def filepath(self):
         """Return the name of the thumbnail file."""
         return "%s.%s" % (self.filename, self.extension)
 
@@ -67,8 +83,8 @@ class ThumbnailFactory:
 class ThumbnailVTT(Thumbnail):
     """Implements the methods for generating thumbnails in the WebVTT format."""
 
-    def __init__(self, video, base):
-        super().__init__(video, base)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._master_name = self.filename + ".png"
 
     def prepare_frames(self):
@@ -98,7 +114,7 @@ class ThumbnailVTT(Thumbnail):
             )
             _lines.append(_thumbnail)
 
-        with open(self.file, "w") as fp:
+        with open(self.filepath, "w") as fp:
             fp.writelines(_lines)
 
 
@@ -106,8 +122,8 @@ class ThumbnailVTT(Thumbnail):
 class ThumbnailJSON(Thumbnail):
     """Implements the methods for generating thumbnails in the JSON format."""
 
-    def __init__(self, video, base):
-        super().__init__(video, base)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._outdir = "outdir"  # temp dirname
 
     def prepare_frames(self):
@@ -129,5 +145,5 @@ class ThumbnailJSON(Thumbnail):
                 }
                 _content[int(start)] = _thumbnail
 
-        with open(self.file, "w") as fp:
+        with open(self.filepath, "w") as fp:
             json.dump(_content, fp, indent=2)
