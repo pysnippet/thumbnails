@@ -64,7 +64,7 @@ class ThumbnailFactory:
 
 
 @register_thumbnail("vtt")
-class VTTThumbnail(Thumbnail):
+class ThumbnailVTT(Thumbnail):
     """Implements the methods for generating thumbnails in the WebVTT format."""
 
     def __init__(self, video, base):
@@ -103,7 +103,7 @@ class VTTThumbnail(Thumbnail):
 
 
 @register_thumbnail("json")
-class JSONThumbnail(Thumbnail):
+class ThumbnailJSON(Thumbnail):
     """Implements the methods for generating thumbnails in the JSON format."""
 
     def __init__(self, video, base):
