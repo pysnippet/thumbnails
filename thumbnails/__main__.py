@@ -18,7 +18,7 @@ def worker(video, base, format_):
 
 
 @cli
-def main(compress, interval, base, inputs, output, skip, **kwargs):
+def main(compress=None, interval=None, base=None, inputs=None, output=None, skip=None, **kwargs):
     """TODO: This section will be completed after fixing the issue #26."""
     if not any([
         all(map(os.path.isfile, inputs)),

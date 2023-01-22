@@ -75,7 +75,7 @@ class ThumbnailVTT(Thumbnail):
         _thumbnails = self.thumbnails(True)
         master = Image.new(mode="RGBA", size=next(_thumbnails))
 
-        for frame, start, end, x, y in self.thumbnails():
+        for frame, *_, x, y in self.thumbnails():
             with Image.open(frame) as image:
                 image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
@@ -91,7 +91,7 @@ class ThumbnailVTT(Thumbnail):
         _lines = ["WEBVTT\n\n"]
         _img_src = self.base + self._master_name
 
-        for frame, start, end, x, y in self.thumbnails():
+        for _, start, end, x, y in self.thumbnails():
             _thumbnail = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
                 _format_time(start), _format_time(end),
                 _img_src, x, y, self.width, self.height
@@ -119,7 +119,7 @@ class ThumbnailJSON(Thumbnail):
     def generate(self):
         _content = {}
 
-        for frame, start, end, x, y in self.thumbnails():
+        for frame, start, *_ in self.thumbnails():
             frame = self._outdir + os.sep + os.path.split(frame)[1]
             with Image.open(frame) as image:
                 image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
