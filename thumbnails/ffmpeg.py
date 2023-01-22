@@ -41,6 +41,7 @@ class _FFMpeg:
 
             process = subprocess.Popen(
                 (ffmpeg_bin, "-hide_banner", "-i", filename),
+                shell=False,
                 bufsize=100000,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
