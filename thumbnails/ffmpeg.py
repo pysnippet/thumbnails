@@ -16,18 +16,6 @@ class _FFMpeg:
         self.duration = int(duration + 1)
 
     @staticmethod
-    def _cross_platform_popen_params(bufsize=100000):
-        popen_params = {
-            "bufsize": bufsize,
-            "stdout": subprocess.PIPE,
-            "stderr": subprocess.PIPE,
-            "stdin": subprocess.DEVNULL,
-        }
-        if os.name == "nt":
-            popen_params["creationflags"] = 0x08000000
-        return popen_params
-
-    @staticmethod
     def _parse_duration(stdout):
         """Parse the duration of a video from stdout."""
         duration_regex = r"duration[^\n]+([0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9])"
@@ -51,12 +39,16 @@ class _FFMpeg:
             # Parse the metadata of the video formats
             # that are not supported by imageio.
 
-            cmd = (ffmpeg_bin, "-hide_banner", "-i", filename)
-
-            popen_params = self._cross_platform_popen_params()
-            process = subprocess.Popen(cmd, **popen_params)
+            process = subprocess.Popen(
+                (ffmpeg_bin, "-hide_banner", "-i", filename),
+                bufsize=100000,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                creationflags=0x08000000 if os.name == "nt" else 0,
+            )
             _, stderr = process.communicate()
-            stdout = stderr.decode("utf8", errors="ignore")
+            stdout = (stderr or b"").decode("utf8", errors="ignore")
 
             duration = self._parse_duration(stdout)
             size = self._parse_size(stdout)
