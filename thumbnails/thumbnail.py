@@ -1,13 +1,13 @@
 import functools
 import json
 import os
-import shutil
 from abc import ABCMeta
 from abc import abstractmethod
 from datetime import timedelta
 from distutils.dir_util import copy_tree
+from distutils.dir_util import create_tree
+from distutils.dir_util import remove_tree
 
-import click
 from PIL import Image
 
 
@@ -39,22 +39,35 @@ class Thumbnail(metaclass=ABCMeta):
         self.base = base
         self.skip = skip
         self.output = output
-        self._validate_existence()
+        self._perform_skip()
         self.extract_frames()
 
-    def _validate_existence(self):
-        """Checks thumbnail existence and raises ThumbnailExistsError to skip."""
-        if self.skip or os.path.exists(self.filepath) and click.confirm("Are you agree to override?"):
+    def _perform_skip(self):
+        """Raises ThumbnailExistsError to skip."""
+        if os.path.exists(self.get_metadata_path()) and self.skip:
             raise ThumbnailExistsError
+        basedir, file = os.path.split(self.get_metadata_path())
+        create_tree(basedir, [file])
 
     def __getattr__(self, item):
         """Delegate all other attributes to the video."""
         return getattr(self.video, item)
 
-    @functools.cached_property
-    def filepath(self):
+    def get_metadata_path(self):
         """Return the name of the thumbnail file."""
-        return "%s.%s" % (self.filename, self.extension)
+        return self.metadata_path(self.filepath, self.output, self.extension)
+
+    @staticmethod
+    @functools.cache
+    def metadata_path(path, out, fmt):
+        """Calculate the thumbnail metadata output path."""
+        out = os.path.abspath(out or os.path.dirname(path))
+        filename = os.path.splitext(os.path.basename(path))[0]
+        return os.path.join(out, "%s.%s" % (filename, fmt))
+
+    @abstractmethod
+    def thumbnail_dir(self):
+        """Creates and returns the thumbnail's output directory."""
 
     @abstractmethod
     def prepare_frames(self):
@@ -83,67 +96,75 @@ class ThumbnailFactory:
 class ThumbnailVTT(Thumbnail):
     """Implements the methods for generating thumbnails in the WebVTT format."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._master_name = self.filename + ".png"
+    def thumbnail_dir(self):
+        basedir = self.output or os.path.dirname(self.filepath)
+        create_tree(os.path.abspath(basedir), [self.filepath])
+        return os.path.abspath(basedir)
 
     def prepare_frames(self):
-        _thumbnails = self.thumbnails(True)
-        master = Image.new(mode="RGBA", size=next(_thumbnails))
+        thumbnails = self.thumbnails(True)
+        master = Image.new(mode="RGBA", size=next(thumbnails))
+        master_name = os.path.splitext(os.path.basename(self.filepath))[0]
+        master_path = os.path.join(self.thumbnail_dir(), master_name + ".png")
 
         for frame, *_, x, y in self.thumbnails():
             with Image.open(frame) as image:
                 image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
 
-        master.save(self._master_name)
+        master.save(master_path)
         self.tempdir.cleanup()
 
     def generate(self):
-        def _format_time(secs):
+        def format_time(secs):
             delta = timedelta(seconds=secs)
             return ("0%s.000" % delta)[:12]
 
-        _lines = ["WEBVTT\n\n"]
-        _img_src = self.base + self._master_name
+        metadata = ["WEBVTT\n\n"]
+        prefix = self.base or os.path.relpath(self.thumbnail_dir())
+        route = os.path.join(prefix, os.path.basename(self.filepath))
 
         for _, start, end, x, y in self.thumbnails():
-            _thumbnail = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
-                _format_time(start), _format_time(end),
-                _img_src, x, y, self.width, self.height
+            thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
+                format_time(start), format_time(end),
+                route, x, y, self.width, self.height,
             )
-            _lines.append(_thumbnail)
+            metadata.append(thumbnail_data)
 
-        with open(self.filepath, "w") as fp:
-            fp.writelines(_lines)
+        with open(self.get_metadata_path(), "w") as fp:
+            fp.writelines(metadata)
 
 
 @register_thumbnail("json")
 class ThumbnailJSON(Thumbnail):
     """Implements the methods for generating thumbnails in the JSON format."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._outdir = "outdir"  # temp dirname
+    def thumbnail_dir(self):
+        basedir = os.path.abspath(self.output or os.path.dirname(self.filepath))
+        subdir = os.path.splitext(os.path.basename(self.filepath))[0]
+        basedir = os.path.join(basedir, subdir)
+        create_tree(basedir, [self.filepath])
+        return basedir
 
     def prepare_frames(self):
-        if os.path.isdir(self._outdir):
-            shutil.rmtree(self._outdir)
-        copy_tree(self.tempdir.name, self._outdir)
+        thumbnail_dir = self.thumbnail_dir()
+        if os.path.exists(thumbnail_dir):
+            remove_tree(thumbnail_dir)
+        copy_tree(self.tempdir.name, thumbnail_dir)
         self.tempdir.cleanup()
 
     def generate(self):
-        _content = {}
+        metadata = {}
 
         for frame, start, *_ in self.thumbnails():
-            frame = self._outdir + os.sep + os.path.split(frame)[1]
+            frame = os.path.join(self.thumbnail_dir(), os.path.basename(frame))
             with Image.open(frame) as image:
                 image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
-                _thumbnail = {
+                thumbnail_data = {
                     "src": self.base + frame,
                     "width": "%spx" % self.width,
                 }
-                _content[int(start)] = _thumbnail
+                metadata[int(start)] = thumbnail_data
 
-        with open(self.filepath, "w") as fp:
-            json.dump(_content, fp, indent=2)
+        with open(self.get_metadata_path(), "w") as fp:
+            json.dump(metadata, fp, indent=2)
