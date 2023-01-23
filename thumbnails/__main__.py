@@ -1,69 +1,72 @@
 import concurrent.futures
 import functools
+import itertools
 import os
 
 import click
 
-from . import DEFAULT_AS
-from . import DEFAULT_BASEPATH
-from . import DEFAULT_COMPRESS
-from . import DEFAULT_INTERVAL
-from . import FormatterFactory
-from . import Thumbnails
-from . import __version__
+from . import Thumbnail
+from . import ThumbnailExistsError
+from . import ThumbnailFactory
+from . import Video
+from .cli import cli
 
 
-def worker(video, as_):
+def worker(video, fmt, base, skip, output):
     """Generate thumbnails for a single video."""
-    video.extract_frames()
-    formatter = FormatterFactory.create_formatter(as_, video)
-    formatter.prepare_thumbnails()
-    formatter.generate()
+    try:
+        thumbnail = ThumbnailFactory.create_thumbnail(fmt, video, base, skip, output)
+    except ThumbnailExistsError:
+        return print("Skipping '%s'" % video.filepath)
+    thumbnail.prepare_frames()
+    thumbnail.generate()
 
 
-class _ThumbnailsCLI(click.Command):
-    """This class overrides the usages section of the help message."""
-
-    def format_usage(self, ctx, formatter):
-        usages = (
-            "[OPTIONS] INPUT_DIR OUTPUT_DIR",
-            "[OPTIONS] INPUT_FILE OUTPUT_FILE",
-            "[OPTIONS] INPUT_FILES... OUTPUT_DIR",
-        )
-        formatter.write_usage(ctx.command_path, "\n\t\t\t".join(usages), prefix="Usages: ")
-
-
-# This defines a set of supported values for the particular option of the CLI.
-_type = click.Choice(FormatterFactory.thumbnails.keys(), case_sensitive=False)
-
-
-@click.command(cls=_ThumbnailsCLI)
-@click.option("--as", "-F", default=DEFAULT_AS, type=_type, help="Output format. Default is %s." % DEFAULT_AS)
-@click.option("--compress", "-C", default=DEFAULT_COMPRESS, help="The image scale coefficient. A number from 0 to 1.")
-@click.option("--interval", "-I", default=DEFAULT_INTERVAL, help="The interval between neighbor thumbnails in seconds.")
-@click.option("--basepath", "-B", default=DEFAULT_BASEPATH, help="The prefix of the thumbnails path can be customized.")
-@click.argument("inputs", required=True, type=click.Path(), nargs=-1)
-@click.argument("output", required=True, type=click.Path(), nargs=1)
-@click.version_option(__version__)
-def thumbnails_cli(compress, interval, basepath, inputs, output, **kwargs):
+@cli
+def main(compress=None, interval=None, base=None, inputs=None, output=None, skip=None, **kwargs):
     """TODO: This section will be completed after fixing the issue #26."""
-    as_ = kwargs.pop("as")
-    output_is_directory = all((len(inputs) > 1, *map(os.path.isfile, inputs))) or os.path.isdir(inputs[0])
+
+    def listdir(directory):
+        """Lists all files in the given directory with absolute paths."""
+        for basedir, _, files in os.walk(directory):
+            for file in filter(os.path.isfile, files):
+                yield os.path.abspath(os.path.join(basedir, file))
+
+    if all(map(os.path.isfile, inputs)):
+        inputs = set(map(os.path.abspath, inputs))
+    elif all(map(os.path.isdir, inputs)):
+        inputs = set(itertools.chain(*map(listdir, inputs)))
+    else:
+        exit("Inputs must be all files or all directories.")
+
+    fmt = kwargs.pop("format")
+    inputs = dict(zip(map(lambda i: Thumbnail.metadata_path(i, output, fmt), inputs), inputs))
+
+    if not skip and any(map(os.path.exists, inputs.keys())):
+        skip = not click.confirm("Do you want to overwrite already existing files?")
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         videos = executor.map(
             functools.partial(
-                Thumbnails,
+                Video,
                 compress=compress,
                 interval=interval,
-                basepath=basepath
             ),
-            inputs,
+            inputs.values(),
         )
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        executor.map(functools.partial(worker, as_=as_), videos)
+        executor.map(
+            functools.partial(
+                worker,
+                fmt=fmt,
+                base=base,
+                skip=skip,
+                output=output,
+            ),
+            videos,
+        )
 
 
 if __name__ == "__main__":
-    thumbnails_cli()
+    main()
