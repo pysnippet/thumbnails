@@ -3,18 +3,21 @@ import functools
 import itertools
 import os
 
+import click
+
+from . import Thumbnail
 from . import ThumbnailExistsError
 from . import ThumbnailFactory
 from . import Video
 from .cli import cli
 
 
-def worker(video, base, skip, output, typename):
+def worker(video, fmt, base, skip, output):
     """Generate thumbnails for a single video."""
     try:
-        thumbnail = ThumbnailFactory.create_thumbnail(typename, video, base, skip, output)
+        thumbnail = ThumbnailFactory.create_thumbnail(fmt, video, base, skip, output)
     except ThumbnailExistsError:
-        return print("Skipping '%s'" % video.filename)
+        return print("Skipping '%s'" % video.filepath)
     thumbnail.prepare_frames()
     thumbnail.generate()
 
@@ -30,15 +33,17 @@ def main(compress=None, interval=None, base=None, inputs=None, output=None, skip
                 yield os.path.abspath(os.path.join(basedir, file))
 
     if all(map(os.path.isfile, inputs)):
-        inputs = tuple(map(os.path.abspath, inputs))
+        inputs = set(map(os.path.abspath, inputs))
     elif all(map(os.path.isdir, inputs)):
-        inputs = tuple(itertools.chain(*map(listdir, inputs)))
+        inputs = set(itertools.chain(*map(listdir, inputs)))
     else:
         exit("Inputs must be all files or all directories.")
 
-    # TODO: Add validation and ask for override.
+    fmt = kwargs.pop("format")
+    inputs = dict(zip(map(lambda i: Thumbnail.metadata_path(i, output, fmt), inputs), inputs))
 
-    format_ = kwargs.pop("format")
+    if not skip and any(map(os.path.exists, inputs.keys())):
+        skip = not click.confirm("Do you want to overwrite already existing files?")
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         videos = executor.map(
@@ -47,17 +52,17 @@ def main(compress=None, interval=None, base=None, inputs=None, output=None, skip
                 compress=compress,
                 interval=interval,
             ),
-            inputs,
+            inputs.values(),
         )
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(
             functools.partial(
                 worker,
+                fmt=fmt,
                 base=base,
                 skip=skip,
                 output=output,
-                typename=format_,
             ),
             videos,
         )
