@@ -59,17 +59,17 @@ class _Frame:
 class Video(_FFMpeg, _Frame):
     """The main class for processing the thumbnail generation of a video."""
 
-    def __init__(self, filename, compress, interval):
+    def __init__(self, filepath, compress, interval):
         self.__compress = float(compress)
         self.__interval = float(interval)
 
         if self.__compress <= 0 or self.__compress > 1:
             raise ValueError("Compress must be between 0 and 1.")
 
-        self.filename = filename
+        self.filename = os.path.basename(filepath)
         self.tempdir = TemporaryDirectory()
 
-        _FFMpeg.__init__(self, filename)
+        _FFMpeg.__init__(self, filepath)
         _Frame.__init__(self, self.size)
 
     @property
@@ -92,7 +92,7 @@ class Video(_FFMpeg, _Frame):
         """Extracts a single frame from the video by the given time."""
         _input_file = self.filename
         _timestamp = str(timedelta(seconds=start_time))
-        _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, self.filename)
+        _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, _input_file)
 
         cmd = (
             ffmpeg_bin,

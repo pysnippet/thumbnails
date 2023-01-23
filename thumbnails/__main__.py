@@ -1,5 +1,6 @@
 import concurrent.futures
 import functools
+import itertools
 import os
 
 from . import ThumbnailExistsError
@@ -21,13 +22,21 @@ def worker(video, base, skip, output, typename):
 @cli
 def main(compress=None, interval=None, base=None, inputs=None, output=None, skip=None, **kwargs):
     """TODO: This section will be completed after fixing the issue #26."""
-    if not any([
-        all(map(os.path.isfile, inputs)),
-        all(map(os.path.isdir, inputs)),
-    ]):
-        exit("The inputs must be all files or all directories.")
 
-    # in case of inputs are directories, convert inputs to a list of files
+    def listdir(directory):
+        """Lists all files in the given directory with absolute paths."""
+        for basedir, _, files in os.walk(directory):
+            for file in filter(os.path.isfile, files):
+                yield os.path.abspath(os.path.join(basedir, file))
+
+    if all(map(os.path.isfile, inputs)):
+        inputs = tuple(map(os.path.abspath, inputs))
+    elif all(map(os.path.isdir, inputs)):
+        inputs = tuple(itertools.chain(*map(listdir, inputs)))
+    else:
+        exit("Inputs must be all files or all directories.")
+
+    # TODO: Add validation and ask for override.
 
     format_ = kwargs.pop("format")
 
