@@ -30,7 +30,7 @@ def cli(func):
     @click.option("--compress", "-C", default=DEFAULT_COMPRESS, help=HELP_COMPRESS)
     @click.option("--interval", "-I", default=DEFAULT_INTERVAL, help=HELP_INTERVAL)
     @click.option("--base", "-B", default=DEFAULT_BASE, help=HELP_BASE)
-    @click.option("--skip", "-S", default=DEFAULT_SKIP, help=HELP_SKIP)
+    @click.option("--skip", "-S", default=DEFAULT_SKIP, help=HELP_SKIP, is_flag=True)
     @click.option("--output", "-O", default=DEFAULT_OUTPUT, type=click.Path(), help=HELP_OUTPUT)
     @click.option("--format", "-F", default=DEFAULT_FORMAT, type=format_choice, help=HELP_FORMAT)
     @click.argument("inputs", required=True, type=click.Path(), nargs=-1)
