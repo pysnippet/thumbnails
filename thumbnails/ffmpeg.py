@@ -11,8 +11,8 @@ ffmpeg_bin = get_ffmpeg_exe()
 class _FFMpeg:
     """This class is used to parse the metadata of a video file."""
 
-    def __init__(self, filename):
-        duration, self.size = self._parse_metadata(filename)
+    def __init__(self, filepath):
+        duration, self.size = self._parse_metadata(filepath)
         self.duration = int(duration + 1)
 
     @staticmethod
@@ -30,9 +30,9 @@ class _FFMpeg:
         match_size = re.search(size_regex, stdout, re.M)
         return tuple(map(int, match_size.groups()))
 
-    def _parse_metadata(self, filename):
+    def _parse_metadata(self, filepath):
         """Parse the metadata of a video file."""
-        meta = immeta(filename)
+        meta = immeta(filepath)
         duration, size = meta.get("duration"), meta.get("size")
 
         if not all((duration, size)):
@@ -40,7 +40,7 @@ class _FFMpeg:
             # that are not supported by imageio.
 
             process = subprocess.Popen(
-                (ffmpeg_bin, "-hide_banner", "-i", filename),
+                (ffmpeg_bin, "-hide_banner", "-i", filepath),
                 bufsize=100000,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

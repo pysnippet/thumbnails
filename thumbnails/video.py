@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 from imageio_ffmpeg import get_ffmpeg_exe
 
 from .ffmpeg import _FFMpeg
+from .frame import _Frame
 
 ffmpeg_bin = get_ffmpeg_exe()
 
@@ -27,50 +28,25 @@ def arange(start, stop, step):
     return tuple(_generator())
 
 
-class _Frame:
-    """This mixin class is used to optimally calculate the size of a thumbnail frame."""
-
-    def __init__(self, size):
-        width, height = size
-        _min_width = 300
-        _min_height = math.ceil(_min_width * height / width)
-
-        self._width = width / 10
-        self._height = height / 10
-        self._min_width = _min_width
-        self._min_height = _min_height
-
-    @property
-    def compress(self):
-        """Defines an interface for the compress property."""
-        raise NotImplementedError
-
-    @functools.cached_property
-    def width(self):
-        """Calculates and caches the width."""
-        return max(self._min_width, self._width * self.compress)
-
-    @functools.cached_property
-    def height(self):
-        """Calculates and caches the height."""
-        return max(self._min_height, self._height * self.compress)
-
-
 class Video(_FFMpeg, _Frame):
     """The main class for processing the thumbnail generation of a video."""
 
     def __init__(self, filepath, compress, interval):
+        self.__filepath = filepath
         self.__compress = float(compress)
         self.__interval = float(interval)
 
         if self.__compress <= 0 or self.__compress > 1:
             raise ValueError("Compress must be between 0 and 1.")
 
-        self.filename = os.path.basename(filepath)
         self.tempdir = TemporaryDirectory()
 
         _FFMpeg.__init__(self, filepath)
         _Frame.__init__(self, self.size)
+
+    @property
+    def filepath(self):
+        return self.__filepath
 
     @property
     def compress(self):
@@ -90,7 +66,7 @@ class Video(_FFMpeg, _Frame):
 
     def _extract_frame(self, start_time):
         """Extracts a single frame from the video by the given time."""
-        _input_file = self.filename
+        _input_file = os.path.basename(self.filepath)
         _timestamp = str(timedelta(seconds=start_time))
         _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, _input_file)
 
