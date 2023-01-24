@@ -3,7 +3,7 @@ import math
 
 
 class _Frame:
-    """This mixin class is used to optimally calculate the size of a thumbnail frame."""
+    """This class is used to calculate the optimal size of a thumbnail frame."""
 
     def __init__(self, size):
         width, height = size
@@ -22,10 +22,10 @@ class _Frame:
 
     @functools.cached_property
     def width(self):
-        """Calculates and caches the width."""
+        """Calculates and caches the frame width."""
         return max(self._min_width, self._width * self.compress)
 
     @functools.cached_property
     def height(self):
-        """Calculates and caches the height."""
+        """Calculates and caches the frame height."""
         return max(self._min_height, self._height * self.compress)

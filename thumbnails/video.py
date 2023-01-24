@@ -29,7 +29,7 @@ def arange(start, stop, step):
 
 
 class Video(_FFMpeg, _Frame):
-    """The main class for processing the thumbnail generation of a video."""
+    """This class gives methods to extract the thumbnail frames of a video."""
 
     def __init__(self, filepath, compress, interval):
         self.__filepath = filepath
@@ -65,18 +65,17 @@ class Video(_FFMpeg, _Frame):
                 return col
 
     def _extract_frame(self, start_time):
-        """Extracts a single frame from the video by the given time."""
-        _input_file = os.path.basename(self.filepath)
-        _timestamp = str(timedelta(seconds=start_time))
-        _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, _input_file)
+        """Extracts a single frame from the video by the offset."""
+        offset = str(timedelta(seconds=start_time))
+        output = "%s/%s.png" % (self.tempdir.name, offset)
 
         cmd = (
             ffmpeg_bin,
-            "-ss", _timestamp,
-            "-i", _input_file,
+            "-ss", offset,
+            "-i", self.filepath,
             "-loglevel", "error",
             "-vframes", "1",
-            _output_file,
+            output,
             "-y",
         )
 
@@ -84,16 +83,15 @@ class Video(_FFMpeg, _Frame):
 
     def extract_frames(self):
         """Extracts the frames from the video by given intervals."""
-        _intervals = arange(0, self.duration, self.interval)
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(self._extract_frame, _intervals)
+            executor.map(self._extract_frame, arange(0, self.duration, self.interval))
 
     def thumbnails(self, master_size=False):
-        """This generator function yields a thumbnail on each iteration.
+        """This generator function yields a thumbnail data on each iteration.
 
-        A thumbnail is a tuple of data describing the current frame.
-        The thumbnail structure is (frame, start, end, x, y) where:
-            - frame: Filename of the current frame in temp-files.
+        The thumbnail data is a tuple of fields describing the current frame.
+        The structure of the thumbnail data is (frame, start, end, x, y).
+            - frame: The filename of the current frame (usually in temp-files).
             - start: The start point of the time range the frame belongs to.
             - end: The end point of the time range the frame belongs to.
             - x: The X coordinate of the frame in the final image.
