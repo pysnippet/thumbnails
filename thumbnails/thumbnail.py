@@ -1,22 +1,23 @@
-import functools
 import json
 import os
 from abc import ABCMeta
 from abc import abstractmethod
 from datetime import timedelta
 from distutils.dir_util import copy_tree
-from distutils.dir_util import create_tree
 from distutils.dir_util import remove_tree
 
 from PIL import Image
 
+from .pathtools import ensure_tree
+from .pathtools import metadata_path
+
 
 def register_thumbnail(typename):
-    """Register a new thumbnail formatter to the factory."""
+    """Register a new type of thumbnail generator into the factory."""
 
     def _register_factory(cls):
         if not issubclass(cls, Thumbnail):
-            raise ValueError("The formatter must implement the Thumbnail interface.")
+            raise ValueError("%s should be a Thumbnail." % cls.__name__)
 
         cls.extension = typename
         ThumbnailFactory.thumbnails[typename] = cls
@@ -30,7 +31,7 @@ class ThumbnailExistsError(Exception):
 
 
 class Thumbnail(metaclass=ABCMeta):
-    """Any thumbnail describing format should implement the base Formatter."""
+    """Any thumbnail describing format should implement the base Thumbnail."""
 
     extension = None
 
@@ -39,31 +40,25 @@ class Thumbnail(metaclass=ABCMeta):
         self.base = base
         self.skip = skip
         self.output = output
+        self.metadata_path = None
+        self._init_metadata_path()
         self._perform_skip()
         self.extract_frames()
 
+    def _init_metadata_path(self):
+        """Initiates the name of the thumbnail metadata file."""
+        self.metadata_path = metadata_path(self.filepath, self.output, self.extension)
+
     def _perform_skip(self):
-        """Raises ThumbnailExistsError to skip."""
-        if os.path.exists(self.get_metadata_path()) and self.skip:
+        """Checks the file existence and decide whether to skip or not."""
+        if os.path.exists(self.metadata_path) and self.skip:
             raise ThumbnailExistsError
-        basedir, file = os.path.split(self.get_metadata_path())
-        create_tree(basedir, [file])
+        basedir, file = os.path.split(self.metadata_path)
+        ensure_tree(basedir, [file])
 
     def __getattr__(self, item):
-        """Delegate all other attributes to the video."""
+        """Delegates all other attributes to the video."""
         return getattr(self.video, item)
-
-    def get_metadata_path(self):
-        """Return the name of the thumbnail file."""
-        return self.metadata_path(self.filepath, self.output, self.extension)
-
-    @staticmethod
-    @functools.cache
-    def metadata_path(path, out, fmt):
-        """Calculate the thumbnail metadata output path."""
-        out = os.path.abspath(out or os.path.dirname(path))
-        filename = os.path.splitext(os.path.basename(path))[0]
-        return os.path.join(out, "%s.%s" % (filename, fmt))
 
     @abstractmethod
     def thumbnail_dir(self):
@@ -71,25 +66,25 @@ class Thumbnail(metaclass=ABCMeta):
 
     @abstractmethod
     def prepare_frames(self):
-        """Prepare the thumbnails before generating the output."""
+        """Prepares the thumbnail frames before generating the output."""
 
     @abstractmethod
     def generate(self):
-        """Generate the thumbnails for the given video."""
+        """Generates the thumbnail metadata for the given video."""
 
 
 class ThumbnailFactory:
-    """A factory for creating thumbnail formatter."""
+    """A factory for creating a thumbnail for a particular format."""
 
     thumbnails = {}
 
     @classmethod
     def create_thumbnail(cls, typename, *args, **kwargs) -> Thumbnail:
-        """Create a new thumbnail formatter by the given typename."""
+        """Create a Thumbnail instance by the given typename."""
         try:
             return cls.thumbnails[typename](*args, **kwargs)
         except KeyError:
-            raise ValueError("The formatter type '%s' is not registered." % typename)
+            raise ValueError("The thumbnail type '%s' is not registered." % typename)
 
 
 @register_thumbnail("vtt")
@@ -98,8 +93,7 @@ class ThumbnailVTT(Thumbnail):
 
     def thumbnail_dir(self):
         basedir = self.output or os.path.dirname(self.filepath)
-        create_tree(os.path.abspath(basedir), [self.filepath])
-        return os.path.abspath(basedir)
+        return ensure_tree(os.path.abspath(basedir), [self.filepath])
 
     def prepare_frames(self):
         thumbnails = self.thumbnails(True)
@@ -132,7 +126,7 @@ class ThumbnailVTT(Thumbnail):
             )
             metadata.append(thumbnail_data)
 
-        with open(self.get_metadata_path(), "w") as fp:
+        with open(self.metadata_path, "w") as fp:
             fp.writelines(metadata)
 
 
@@ -143,9 +137,7 @@ class ThumbnailJSON(Thumbnail):
     def thumbnail_dir(self):
         basedir = os.path.abspath(self.output or os.path.dirname(self.filepath))
         subdir = os.path.splitext(os.path.basename(self.filepath))[0]
-        basedir = os.path.join(basedir, subdir)
-        create_tree(basedir, [self.filepath])
-        return basedir
+        return ensure_tree(os.path.join(basedir, subdir), [self.filepath])
 
     def prepare_frames(self):
         thumbnail_dir = self.thumbnail_dir()
@@ -169,5 +161,5 @@ class ThumbnailJSON(Thumbnail):
                 }
                 metadata[int(start)] = thumbnail_data
 
-        with open(self.get_metadata_path(), "w") as fp:
+        with open(self.metadata_path, "w") as fp:
             json.dump(metadata, fp, indent=2)
