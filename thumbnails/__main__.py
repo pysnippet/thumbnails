@@ -25,7 +25,8 @@ def worker(video, fmt, base, skip, output):
 
 @cli
 def main(compress=None, interval=None, base=None, inputs=None, output=None, skip=None, **kwargs):
-    """TODO: This section will be completed after fixing the issue #26."""
+    """This command delegates the functionality of the `thumbnails` Python package
+    to the CLI. Read more at https://github.com/pysnippet/thumbnails#readme."""
 
     if all(map(os.path.isfile, inputs)):
         inputs = set(map(os.path.abspath, inputs))
