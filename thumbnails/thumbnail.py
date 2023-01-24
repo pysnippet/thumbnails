@@ -40,14 +40,14 @@ class Thumbnail(metaclass=ABCMeta):
         self.base = base
         self.skip = skip
         self.output = output
-        self.metadata_path = None
-        self._init_metadata_path()
+        self.thumbnail_dir = self.calc_thumbnail_dir()
+        self.metadata_path = self._get_metadata_path()
         self._perform_skip()
         self.extract_frames()
 
-    def _init_metadata_path(self):
+    def _get_metadata_path(self):
         """Initiates the name of the thumbnail metadata file."""
-        self.metadata_path = metadata_path(self.filepath, self.output, self.extension)
+        return metadata_path(self.filepath, self.output, self.extension)
 
     def _perform_skip(self):
         """Checks the file existence and decide whether to skip or not."""
@@ -61,8 +61,8 @@ class Thumbnail(metaclass=ABCMeta):
         return getattr(self.video, item)
 
     @abstractmethod
-    def thumbnail_dir(self):
-        """Creates and returns the thumbnail's output directory."""
+    def calc_thumbnail_dir(self):
+        """Calculates and returns the thumbnail's output directory."""
 
     @abstractmethod
     def prepare_frames(self):
@@ -91,7 +91,7 @@ class ThumbnailFactory:
 class ThumbnailVTT(Thumbnail):
     """Implements the methods for generating thumbnails in the WebVTT format."""
 
-    def thumbnail_dir(self):
+    def calc_thumbnail_dir(self):
         basedir = self.output or os.path.dirname(self.filepath)
         return ensure_tree(os.path.abspath(basedir), [self.filepath])
 
@@ -99,7 +99,7 @@ class ThumbnailVTT(Thumbnail):
         thumbnails = self.thumbnails(True)
         master = Image.new(mode="RGBA", size=next(thumbnails))
         master_name = os.path.splitext(os.path.basename(self.filepath))[0]
-        master_path = os.path.join(self.thumbnail_dir(), master_name + ".png")
+        master_path = os.path.join(self.thumbnail_dir, master_name + ".png")
 
         for frame, *_, x, y in self.thumbnails():
             with Image.open(frame) as image:
@@ -115,7 +115,7 @@ class ThumbnailVTT(Thumbnail):
             return ("0%s.000" % delta)[:12]
 
         metadata = ["WEBVTT\n\n"]
-        prefix = self.base or os.path.relpath(self.thumbnail_dir())
+        prefix = self.base or os.path.relpath(self.thumbnail_dir)
         master_name = os.path.splitext(os.path.basename(self.filepath))[0]
         route = os.path.join(prefix, master_name + ".png")
 
@@ -134,26 +134,25 @@ class ThumbnailVTT(Thumbnail):
 class ThumbnailJSON(Thumbnail):
     """Implements the methods for generating thumbnails in the JSON format."""
 
-    def thumbnail_dir(self):
+    def calc_thumbnail_dir(self):
         basedir = os.path.abspath(self.output or os.path.dirname(self.filepath))
         subdir = os.path.splitext(os.path.basename(self.filepath))[0]
         return ensure_tree(os.path.join(basedir, subdir), [self.filepath])
 
     def prepare_frames(self):
-        thumbnail_dir = self.thumbnail_dir()
-        if os.path.exists(thumbnail_dir):
-            remove_tree(thumbnail_dir)
-        copy_tree(self.tempdir.name, thumbnail_dir)
+        if os.path.exists(self.thumbnail_dir):
+            remove_tree(self.thumbnail_dir)
+        copy_tree(self.tempdir.name, self.thumbnail_dir)
         self.tempdir.cleanup()
 
     def generate(self):
         metadata = {}
 
         for frame, start, *_ in self.thumbnails():
-            frame = os.path.join(self.thumbnail_dir(), os.path.basename(frame))
+            frame = os.path.join(self.thumbnail_dir, os.path.basename(frame))
             with Image.open(frame) as image:
                 image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
-                prefix = self.base or os.path.relpath(self.thumbnail_dir())
+                prefix = self.base or os.path.relpath(self.thumbnail_dir)
                 route = os.path.join(prefix, os.path.basename(frame))
                 thumbnail_data = {
                     "src": route,
