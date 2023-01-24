@@ -14,11 +14,18 @@ def listdir(directory):
 def metadata_path(path, out, fmt):
     """Calculates the thumbnail metadata output path."""
     out = os.path.abspath(out or os.path.dirname(path))
-    filename = os.path.splitext(os.path.basename(path))[0]
-    return os.path.join(out, "%s.%s" % (filename, fmt))
+    return os.path.join(out, "%s.%s" % (extract_name(path), fmt))
 
 
-def ensure_tree(basedir, files, *args, **kwargs):
+def extract_name(path):
+    """Extracts the name of the file from the path."""
+    return os.path.splitext(os.path.basename(path))[0]
+
+
+def ensure_tree(basedir, isdir=False, *args, **kwargs):
     """Ensures the existence of basedir and returns."""
-    create_tree(basedir, files, *args, **kwargs)
+    basedir, file = os.path.abspath(basedir), ""
+    if not isdir:
+        basedir, file = os.path.split(basedir)
+    create_tree(basedir, [file], *args, **kwargs)
     return basedir

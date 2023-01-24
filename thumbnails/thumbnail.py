@@ -9,6 +9,7 @@ from distutils.dir_util import remove_tree
 from PIL import Image
 
 from .pathtools import ensure_tree
+from .pathtools import extract_name
 from .pathtools import metadata_path
 
 
@@ -53,8 +54,7 @@ class Thumbnail(metaclass=ABCMeta):
         """Checks the file existence and decide whether to skip or not."""
         if os.path.exists(self.metadata_path) and self.skip:
             raise ThumbnailExistsError
-        basedir, file = os.path.split(self.metadata_path)
-        ensure_tree(basedir, [file])
+        ensure_tree(self.metadata_path)
 
     def __getattr__(self, item):
         """Delegates all other attributes to the video."""
@@ -92,14 +92,12 @@ class ThumbnailVTT(Thumbnail):
     """Implements the methods for generating thumbnails in the WebVTT format."""
 
     def calc_thumbnail_dir(self):
-        basedir = self.output or os.path.dirname(self.filepath)
-        return ensure_tree(os.path.abspath(basedir), [self.filepath])
+        return ensure_tree(self.output or os.path.dirname(self.filepath), True)
 
     def prepare_frames(self):
         thumbnails = self.thumbnails(True)
         master = Image.new(mode="RGBA", size=next(thumbnails))
-        master_name = os.path.splitext(os.path.basename(self.filepath))[0]
-        master_path = os.path.join(self.thumbnail_dir, master_name + ".png")
+        master_path = os.path.join(self.thumbnail_dir, extract_name(self.filepath) + ".png")
 
         for frame, *_, x, y in self.thumbnails():
             with Image.open(frame) as image:
@@ -116,8 +114,7 @@ class ThumbnailVTT(Thumbnail):
 
         metadata = ["WEBVTT\n\n"]
         prefix = self.base or os.path.relpath(self.thumbnail_dir)
-        master_name = os.path.splitext(os.path.basename(self.filepath))[0]
-        route = os.path.join(prefix, master_name + ".png")
+        route = os.path.join(prefix, extract_name(self.filepath) + ".png")
 
         for _, start, end, x, y in self.thumbnails():
             thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
@@ -136,8 +133,7 @@ class ThumbnailJSON(Thumbnail):
 
     def calc_thumbnail_dir(self):
         basedir = os.path.abspath(self.output or os.path.dirname(self.filepath))
-        subdir = os.path.splitext(os.path.basename(self.filepath))[0]
-        return ensure_tree(os.path.join(basedir, subdir), [self.filepath])
+        return ensure_tree(os.path.join(basedir, extract_name(self.filepath)), True)
 
     def prepare_frames(self):
         if os.path.exists(self.thumbnail_dir):
