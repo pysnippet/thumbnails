@@ -122,7 +122,8 @@ class ThumbnailVTT(Thumbnail):
 
         metadata = ["WEBVTT\n\n"]
         prefix = self.base or os.path.relpath(self.thumbnail_dir())
-        route = os.path.join(prefix, os.path.basename(self.filepath))
+        master_name = os.path.splitext(os.path.basename(self.filepath))[0]
+        route = os.path.join(prefix, master_name + ".png")
 
         for _, start, end, x, y in self.thumbnails():
             thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
@@ -160,8 +161,10 @@ class ThumbnailJSON(Thumbnail):
             frame = os.path.join(self.thumbnail_dir(), os.path.basename(frame))
             with Image.open(frame) as image:
                 image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
+                prefix = self.base or os.path.relpath(self.thumbnail_dir())
+                route = os.path.join(prefix, os.path.basename(frame))
                 thumbnail_data = {
-                    "src": self.base + frame,
+                    "src": route,
                     "width": "%spx" % self.width,
                 }
                 metadata[int(start)] = thumbnail_data

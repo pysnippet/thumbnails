@@ -66,17 +66,17 @@ class Video(_FFMpeg, _Frame):
 
     def _extract_frame(self, start_time):
         """Extracts a single frame from the video by the given time."""
-        _input_file = os.path.basename(self.filepath)
-        _timestamp = str(timedelta(seconds=start_time))
-        _output_file = "%s/%s-%s.png" % (self.tempdir.name, _timestamp, _input_file)
+        filename = os.path.basename(self.filepath)
+        offset = str(timedelta(seconds=start_time))
+        output = "%s/%s.png" % (self.tempdir.name, offset)
 
         cmd = (
             ffmpeg_bin,
-            "-ss", _timestamp,
-            "-i", _input_file,
+            "-ss", offset,
+            "-i", filename,
             "-loglevel", "error",
             "-vframes", "1",
-            _output_file,
+            output,
             "-y",
         )
 
@@ -84,9 +84,8 @@ class Video(_FFMpeg, _Frame):
 
     def extract_frames(self):
         """Extracts the frames from the video by given intervals."""
-        _intervals = arange(0, self.duration, self.interval)
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(self._extract_frame, _intervals)
+            executor.map(self._extract_frame, arange(0, self.duration, self.interval))
 
     def thumbnails(self, master_size=False):
         """This generator function yields a thumbnail on each iteration.
