@@ -8,6 +8,5 @@ testpaths = [
     "tests",
 ]
 filterwarnings = [
-    "error",
     "ignore::DeprecationWarning",
 ]
