@@ -28,6 +28,30 @@ Video.js also can handle **JSON** formatted thumbnails' metadata, and this tool 
 thumbnails --help
 ```
 
+[//]: # (usage for CLI and python API)
+
+## Development
+
+Install the dependencies:
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Install the development dependencies:
+```bash
+python3 -m pip install -r requirements-dev.txt
+```
+
+Install the package in editable mode:
+```bash
+python3 -m pip install -e .
+```
+
+Run the tests to ensure everything is working before opening a PR:
+```bash
+tox
+```
+
 ## Contribute
 
 Everyone is welcome to contribute to this project. Please read the [contribution guidelines](https://github.com/pysnippet/instructions#readme)
