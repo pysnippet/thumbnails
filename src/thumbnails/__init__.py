@@ -20,15 +20,6 @@ from .thumbnail import ThumbnailFactory
 from .thumbnail import ThumbnailJSON
 from .thumbnail import ThumbnailVTT
 from .thumbnail import register_thumbnail
-from .video import Video
 
-__version__ = "0.0.1"
-__all__ = (
-    "Thumbnail",
-    "ThumbnailExistsError",
-    "ThumbnailFactory",
-    "ThumbnailJSON",
-    "ThumbnailVTT",
-    "register_thumbnail",
-    "Video",
-)
+__version__ = "0.1.1"
+__all__ = []
