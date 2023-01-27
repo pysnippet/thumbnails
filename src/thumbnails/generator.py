@@ -5,9 +5,14 @@ import os
 
 import click
 
-from . import *
 from . import ThumbnailExistsError
 from . import ThumbnailFactory
+from .constants import DEFAULT_BASE
+from .constants import DEFAULT_COMPRESS
+from .constants import DEFAULT_FORMAT
+from .constants import DEFAULT_INTERVAL
+from .constants import DEFAULT_OUTPUT
+from .constants import DEFAULT_SKIP
 from .pathtools import listdir
 from .pathtools import metadata_path
 from .video import Video

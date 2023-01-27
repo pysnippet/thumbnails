@@ -21,20 +21,5 @@ from .thumbnail import ThumbnailJSON
 from .thumbnail import ThumbnailVTT
 from .thumbnail import register_thumbnail
 
-DEFAULT_BASE = ""
-DEFAULT_SKIP = False
-DEFAULT_OUTPUT = None
-DEFAULT_FORMAT = "vtt"
-DEFAULT_COMPRESS = 1.0
-DEFAULT_INTERVAL = 1.0
-
-__version__ = "0.1.0"
-__all__ = (
-    "DEFAULT_BASE",
-    "DEFAULT_SKIP",
-    "DEFAULT_OUTPUT",
-    "DEFAULT_FORMAT",
-    "DEFAULT_COMPRESS",
-    "DEFAULT_INTERVAL",
-    "__version__",
-)
+__version__ = "0.1.1"
+__all__ = []

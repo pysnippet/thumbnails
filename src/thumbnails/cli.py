@@ -2,8 +2,14 @@ import functools
 
 import click
 
-from . import *
 from . import ThumbnailFactory
+from . import __version__
+from .constants import DEFAULT_BASE
+from .constants import DEFAULT_COMPRESS
+from .constants import DEFAULT_FORMAT
+from .constants import DEFAULT_INTERVAL
+from .constants import DEFAULT_OUTPUT
+from .constants import DEFAULT_SKIP
 
 # Help messages of the particular option of the CLI.
 HELP_BASE = "The prefix of the thumbnails path can be customized."
