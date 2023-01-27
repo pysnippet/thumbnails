@@ -148,7 +148,8 @@ class ThumbnailJSON(Thumbnail):
             frame = os.path.join(self.thumbnail_dir, os.path.basename(frame))
             with Image.open(frame) as image:
                 image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
-                prefix = self.base or os.path.relpath(self.thumbnail_dir)
+                base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
+                prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
                 route = os.path.join(prefix, os.path.basename(frame))
                 thumbnail_data = {
                     "src": route,
