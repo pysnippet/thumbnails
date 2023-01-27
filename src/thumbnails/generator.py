@@ -5,8 +5,6 @@ import os
 
 import click
 
-from . import ThumbnailExistsError
-from . import ThumbnailFactory
 from .constants import DEFAULT_BASE
 from .constants import DEFAULT_COMPRESS
 from .constants import DEFAULT_FORMAT
@@ -15,6 +13,8 @@ from .constants import DEFAULT_OUTPUT
 from .constants import DEFAULT_SKIP
 from .pathtools import listdir
 from .pathtools import metadata_path
+from .thumbnail import ThumbnailExistsError
+from .thumbnail import ThumbnailFactory
 from .video import Video
 
 

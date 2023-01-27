@@ -14,12 +14,5 @@
    limitations under the License.
 """
 
-from .thumbnail import Thumbnail
-from .thumbnail import ThumbnailExistsError
-from .thumbnail import ThumbnailFactory
-from .thumbnail import ThumbnailJSON
-from .thumbnail import ThumbnailVTT
-from .thumbnail import register_thumbnail
-
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __all__ = []
