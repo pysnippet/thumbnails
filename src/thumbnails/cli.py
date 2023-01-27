@@ -2,16 +2,8 @@ import functools
 
 import click
 
+from . import *
 from . import ThumbnailFactory
-from . import __version__
-
-# Default values of the particular option of the CLI.
-DEFAULT_BASE = ""
-DEFAULT_SKIP = False
-DEFAULT_OUTPUT = None
-DEFAULT_FORMAT = "vtt"
-DEFAULT_COMPRESS = 1.0
-DEFAULT_INTERVAL = 1.0
 
 # Help messages of the particular option of the CLI.
 HELP_BASE = "The prefix of the thumbnails path can be customized."

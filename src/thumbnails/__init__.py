@@ -20,15 +20,21 @@ from .thumbnail import ThumbnailFactory
 from .thumbnail import ThumbnailJSON
 from .thumbnail import ThumbnailVTT
 from .thumbnail import register_thumbnail
-from .video import Video
 
-__version__ = "0.0.1"
+DEFAULT_BASE = ""
+DEFAULT_SKIP = False
+DEFAULT_OUTPUT = None
+DEFAULT_FORMAT = "vtt"
+DEFAULT_COMPRESS = 1.0
+DEFAULT_INTERVAL = 1.0
+
+__version__ = "0.1.0"
 __all__ = (
-    "Thumbnail",
-    "ThumbnailExistsError",
-    "ThumbnailFactory",
-    "ThumbnailJSON",
-    "ThumbnailVTT",
-    "register_thumbnail",
-    "Video",
+    "DEFAULT_BASE",
+    "DEFAULT_SKIP",
+    "DEFAULT_OUTPUT",
+    "DEFAULT_FORMAT",
+    "DEFAULT_COMPRESS",
+    "DEFAULT_INTERVAL",
+    "__version__",
 )
