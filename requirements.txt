@@ -1,3 +1,4 @@
+av==9.2.0
 click>=8.0.3
 imageio-ffmpeg>=0.4.7
 imageio>=2.23.0
