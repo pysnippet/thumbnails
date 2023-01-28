@@ -34,22 +34,23 @@ thumbnails --help
 
 ## Development
 
-Install the dependencies:
+### Install the dependencies
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Install the development dependencies:
+### Install the development dependencies
 ```bash
 python3 -m pip install -r requirements-dev.txt
 ```
 
-Install the package in editable mode:
+### Install the package in editable mode
 ```bash
 python3 -m pip install -e .
 ```
 
-Run the tests to ensure everything is working before opening a PR:
+### Run the tests
+Run this in the local environment to ensure everything is working before opening a PR
 ```bash
 tox
 ```
