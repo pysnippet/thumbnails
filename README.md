@@ -48,6 +48,7 @@ python3 -m pip install -r requirements-dev.txt
 ```bash
 python3 -m pip install -e .
 ```
+If you are using a non-default version of Python (for example, you work with a virtual environment), you may get an error with `distutils`. See how to [fix](https://askubuntu.com/questions/1261162) the issue.
 
 ### Run the tests
 Run this in the local environment to ensure everything is working before opening a PR
