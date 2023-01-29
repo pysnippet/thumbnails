@@ -14,6 +14,7 @@
    limitations under the License.
 """
 
+from .generator import Generator
 from .thumbnail import Thumbnail
 from .thumbnail import ThumbnailExistsError
 from .thumbnail import ThumbnailFactory
@@ -21,5 +22,13 @@ from .thumbnail import ThumbnailJSON
 from .thumbnail import ThumbnailVTT
 from .thumbnail import register_thumbnail
 
-__version__ = "0.1.1"
-__all__ = []
+__version__ = "0.1.2"
+__all__ = (
+    "Generator",
+    "Thumbnail",
+    "ThumbnailExistsError",
+    "ThumbnailFactory",
+    "ThumbnailJSON",
+    "ThumbnailVTT",
+    "register_thumbnail",
+)

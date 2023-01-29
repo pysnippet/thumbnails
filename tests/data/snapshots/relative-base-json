@@ -1,0 +1,46 @@
+{
+  "0": {
+    "src": "%(tmp_media)s/video/0:00:00.png",
+    "width": "300px"
+  },
+  "10": {
+    "src": "%(tmp_media)s/video/0:00:10.png",
+    "width": "300px"
+  },
+  "20": {
+    "src": "%(tmp_media)s/video/0:00:20.png",
+    "width": "300px"
+  },
+  "30": {
+    "src": "%(tmp_media)s/video/0:00:30.png",
+    "width": "300px"
+  },
+  "40": {
+    "src": "%(tmp_media)s/video/0:00:40.png",
+    "width": "300px"
+  },
+  "50": {
+    "src": "%(tmp_media)s/video/0:00:50.png",
+    "width": "300px"
+  },
+  "60": {
+    "src": "%(tmp_media)s/video/0:01:00.png",
+    "width": "300px"
+  },
+  "70": {
+    "src": "%(tmp_media)s/video/0:01:10.png",
+    "width": "300px"
+  },
+  "80": {
+    "src": "%(tmp_media)s/video/0:01:20.png",
+    "width": "300px"
+  },
+  "90": {
+    "src": "%(tmp_media)s/video/0:01:30.png",
+    "width": "300px"
+  },
+  "100": {
+    "src": "%(tmp_media)s/video/0:01:40.png",
+    "width": "300px"
+  }
+}

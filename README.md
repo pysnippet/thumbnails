@@ -1,5 +1,7 @@
 # Thumbnails <img src="https://github.com/pysnippet.png" align="right" height="64" />
 
+[![PyPI](https://img.shields.io/pypi/v/thumbnails.svg)](https://pypi.org/project/thumbnails/)
+[![Tests](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml/badge.svg)](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ab5414af4c9546fe97ad64365e2a66f0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pysnippet/thumbnails&amp;utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
 
@@ -26,6 +28,30 @@ Video.js also can handle **JSON** formatted thumbnails' metadata, and this tool 
 
 ```bash
 thumbnails --help
+```
+
+[//]: # (TODO: usage for CLI and python API)
+
+## Development
+
+Install the dependencies:
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+Install the development dependencies:
+```bash
+python3 -m pip install -r requirements-dev.txt
+```
+
+Install the package in editable mode:
+```bash
+python3 -m pip install -e .
+```
+
+Run the tests to ensure everything is working before opening a PR:
+```bash
+tox
 ```
 
 ## Contribute
