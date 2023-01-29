@@ -1,5 +1,4 @@
 import concurrent.futures
-import functools
 import glob
 import math
 import os
@@ -15,7 +14,6 @@ from .frame import _Frame
 ffmpeg_bin = get_ffmpeg_exe()
 
 
-@functools.cache
 def arange(start, stop, step):
     """Roughly equivalent to numpy.arange."""
 
