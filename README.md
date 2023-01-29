@@ -41,7 +41,7 @@ python3 -m pip install -r requirements.txt
 
 ### Install the development dependencies
 ```bash
-python3 -m pip install -r requirements-dev.txt
+python3 -m pip install -r tests/requirements.txt
 ```
 
 ### Install the package in editable mode
