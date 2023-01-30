@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 from abc import ABCMeta
 from abc import abstractmethod
 from datetime import timedelta
@@ -114,6 +115,7 @@ class ThumbnailVTT(Thumbnail):
         metadata = ["WEBVTT\n\n"]
         prefix = self.base or os.path.relpath(self.thumbnail_dir)
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
+        route = pathlib.Path(route).as_posix()
 
         for _, start, end, x, y in self.thumbnails():
             thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
@@ -151,6 +153,7 @@ class ThumbnailJSON(Thumbnail):
                 base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
                 prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
                 route = os.path.join(prefix, os.path.basename(frame))
+                route = pathlib.Path(route).as_posix()
                 thumbnail_data = {
                     "src": route,
                     "width": "%spx" % self.width,
