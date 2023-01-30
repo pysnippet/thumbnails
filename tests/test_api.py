@@ -10,17 +10,25 @@ def thumbnail_generation_with_default_output(tmp_media, inputs, fmt):
     generator.format = fmt
     generator.generate()
 
+    print("start test")
+
     snapshot = open(os.path.join(tmp_media, "snapshots", "relative-base-%s" % fmt))
+    print("snapshot", snapshot)
     avi_result = open(os.path.join(tmp_media, "avi", "video.%s" % fmt))
+    print("avi_result", avi_result)
     ogv_result = open(os.path.join(tmp_media, "ogv", "video.%s" % fmt))
+    print("ogv_result", ogv_result)
 
     snapshot_data = snapshot.read()
+    print("snapshot_data", snapshot_data)
     avi_snapshot = snapshot_data % {
         "tmp_media": pathlib.Path(os.path.join(os.path.relpath(tmp_media), "avi")).as_posix()
     }
+    print("avi_snapshot", avi_snapshot)
     ogv_snapshot = snapshot_data % {
         "tmp_media": pathlib.Path(os.path.join(os.path.relpath(tmp_media), "ogv")).as_posix()
     }
+    print("ogv_snapshot", ogv_snapshot)
     if fmt == "json":
         assert len(os.listdir(os.path.join(tmp_media, "avi", "video"))) == 11
         assert len(os.listdir(os.path.join(tmp_media, "ogv", "video"))) == 11
@@ -30,6 +38,8 @@ def thumbnail_generation_with_default_output(tmp_media, inputs, fmt):
     snapshot.close()
     avi_result.close()
     ogv_result.close()
+
+    print("end test")
 
 
 def thumbnail_generation_with_with_extras(tmp_media, inputs, fmt):
