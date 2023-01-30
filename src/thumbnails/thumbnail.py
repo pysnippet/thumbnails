@@ -105,7 +105,6 @@ class ThumbnailVTT(Thumbnail):
                 master.paste(image, (x, y))
 
         master.save(master_path)
-        self.tempdir.cleanup()
 
     def generate(self):
         def format_time(secs):
@@ -126,6 +125,8 @@ class ThumbnailVTT(Thumbnail):
         with open(self.metadata_path, "w") as fp:
             fp.writelines(metadata)
 
+        self.tempdir.cleanup()
+
 
 @register_thumbnail("json")
 class ThumbnailJSON(Thumbnail):
@@ -139,7 +140,6 @@ class ThumbnailJSON(Thumbnail):
         if os.path.exists(self.thumbnail_dir):
             remove_tree(self.thumbnail_dir)
         copy_tree(self.tempdir.name, self.thumbnail_dir)
-        self.tempdir.cleanup()
 
     def generate(self):
         metadata = {}
@@ -159,3 +159,5 @@ class ThumbnailJSON(Thumbnail):
 
         with open(self.metadata_path, "w") as fp:
             json.dump(metadata, fp, indent=2)
+
+        self.tempdir.cleanup()
