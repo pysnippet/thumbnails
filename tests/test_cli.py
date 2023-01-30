@@ -33,6 +33,8 @@ def test_cli_only_files(tmp_media):
         "-I",
         "10",
     )
+    assert os.path.exists(os.path.join(tmp_media, "avi", "video.png"))
+    assert os.path.exists(os.path.join(tmp_media, "avi", "video.vtt"))
 
 
 def test_cli_only_directories(tmp_media):
@@ -42,3 +44,7 @@ def test_cli_only_directories(tmp_media):
         "-I",
         "10",
     )
+    assert os.path.exists(os.path.join(tmp_media, "avi", "video.png"))
+    assert os.path.exists(os.path.join(tmp_media, "avi", "video.vtt"))
+    assert os.path.exists(os.path.join(tmp_media, "ogv", "video.png"))
+    assert os.path.exists(os.path.join(tmp_media, "ogv", "video.vtt"))
