@@ -27,23 +27,31 @@ def test_cli_input_validation():
 
 
 def test_cli_only_files(tmp_media):
+    print("avi:", os.listdir(os.path.join(tmp_media, "avi")))
+    print("ogv:", os.listdir(os.path.join(tmp_media, "ogv")))
     execute_cli(
         os.path.join(tmp_media, "avi", "video.avi"),
         os.path.join(tmp_media, "ogv", "video.ogv"),
         "-I",
         "10",
     )
+    print("avi:", os.listdir(os.path.join(tmp_media, "avi")))
+    print("ogv:", os.listdir(os.path.join(tmp_media, "ogv")))
     assert os.path.exists(os.path.join(tmp_media, "avi", "video.png"))
     assert os.path.exists(os.path.join(tmp_media, "avi", "video.vtt"))
 
 
 def test_cli_only_directories(tmp_media):
+    print("avi:", os.listdir(os.path.join(tmp_media, "avi")))
+    print("ogv:", os.listdir(os.path.join(tmp_media, "ogv")))
     execute_cli(
         os.path.join(tmp_media, "avi"),
         os.path.join(tmp_media, "ogv"),
         "-I",
         "10",
     )
+    print("avi:", os.listdir(os.path.join(tmp_media, "avi")))
+    print("ogv:", os.listdir(os.path.join(tmp_media, "ogv")))
     assert os.path.exists(os.path.join(tmp_media, "avi", "video.png"))
     assert os.path.exists(os.path.join(tmp_media, "avi", "video.vtt"))
     assert os.path.exists(os.path.join(tmp_media, "ogv", "video.png"))
