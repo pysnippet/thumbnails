@@ -10,8 +10,8 @@ def thumbnail_generation_with_default_output(tmp_media, inputs, fmt):
     generator.generate()
 
     snapshot = open(os.path.join(tmp_media, "snapshots", "relative-base-%s" % fmt))
-    avi_result = open(tmp_media, "avi", "video.%s" % fmt)
-    ogv_result = open(tmp_media, "ogv", "video.%s" % fmt)
+    avi_result = open(os.path.join(tmp_media, "avi", "video.%s" % fmt))
+    ogv_result = open(os.path.join(tmp_media, "ogv", "video.%s" % fmt))
 
     snapshot_data = snapshot.read()
     avi_snapshot = snapshot_data % {"tmp_media": os.path.join(os.path.relpath(tmp_media), "avi")}
