@@ -117,8 +117,11 @@ class ThumbnailVTT(Thumbnail):
 
         metadata = ["WEBVTT\n\n"]
         prefix = self.base or os.path.relpath(self.thumbnail_dir)
+        print("generate :: prefix = ", prefix)
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
+        print("generate :: route1 = ", route)
         route = pathlib.Path(route).as_posix()
+        print("generate :: route2 = ", route)
 
         for _, start, end, x, y in self.thumbnails():
             thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
@@ -127,10 +130,18 @@ class ThumbnailVTT(Thumbnail):
             )
             metadata.append(thumbnail_data)
 
+        print("generate :: metadata = ", metadata)
+
         with open(self.metadata_path, "w") as fp:
+            print("generate :: fp = ", fp)
             fp.writelines(metadata)
+            print("generate :: fp.writelines has been executed")
+
+        print("generate :: metadata = ", metadata)
 
         self.tempdir.cleanup()
+
+        print("generate :: tempdir.cleanup has been executed")
 
 
 @register_thumbnail("json")
