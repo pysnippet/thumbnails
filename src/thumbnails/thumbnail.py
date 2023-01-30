@@ -99,7 +99,7 @@ class ThumbnailVTT(Thumbnail):
         master = Image.new(mode="RGBA", size=next(thumbnails))
         master_path = os.path.join(self.thumbnail_dir, extract_name(self.filepath) + ".png")
 
-        for frame, *_, x, y in self.thumbnails():
+        for frame, *_, x, y in thumbnails:
             with Image.open(frame) as image:
                 image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
