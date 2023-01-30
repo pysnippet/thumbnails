@@ -65,7 +65,7 @@ class Video(_FFMpeg, _Frame):
     def _extract_frame(self, start_time):
         """Extracts a single frame from the video by the offset."""
         offset = str(timedelta(seconds=start_time))
-        output = "%s/%s.png" % (self.tempdir.name, offset)
+        output = os.path.join(self.tempdir.name, "%s.png" % offset)
 
         cmd = (
             ffmpeg_bin,

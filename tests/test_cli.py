@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 
@@ -18,12 +19,26 @@ def test_cli_version():
 
 
 def test_cli_input_validation():
-    execute_cli("tests/data/avi/video.avi", "tests/data/ogv", must_fail=True)
+    execute_cli(
+        os.path.join("tests", "data", "avi", "video.avi"),
+        os.path.join("tests", "data", "ogv"),
+        must_fail=True,
+    )
 
 
 def test_cli_only_files(tmp_media):
-    execute_cli("%s/avi/video.avi" % tmp_media, "%s/ogv/video.ogv" % tmp_media, "-I", "10")
+    execute_cli(
+        os.path.join(tmp_media, "avi", "video.avi"),
+        os.path.join(tmp_media, "ogv", "video.ogv"),
+        "-I",
+        "10",
+    )
 
 
 def test_cli_only_directories(tmp_media):
-    execute_cli("%s/avi" % tmp_media, "%s/ogv" % tmp_media, "-I", "10")
+    execute_cli(
+        os.path.join(tmp_media, "avi"),
+        os.path.join(tmp_media, "ogv"),
+        "-I",
+        "10",
+    )
