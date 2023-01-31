@@ -104,7 +104,6 @@ class Video(_FFMpeg, _Frame):
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
         frames_count = len(arange(0, self.duration, self.interval))
         columns = self.calc_columns(frames_count, self.width, self.height)
-        print("thumbnails :: frames", frames)
 
         if master_size:
             yield self.width * columns, self.height * math.ceil(frames_count / columns)

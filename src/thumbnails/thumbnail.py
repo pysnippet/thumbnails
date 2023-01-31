@@ -97,11 +97,8 @@ class ThumbnailVTT(Thumbnail):
 
     def prepare_frames(self):
         thumbnails = self.thumbnails(True)
-        print("prepare_frames :: thumbnails = ", thumbnails)
         master = Image.new(mode="RGBA", size=next(thumbnails))
-        print("prepare_frames :: master = ", master)
         master_path = os.path.join(self.thumbnail_dir, extract_name(self.filepath) + ".png")
-        print("prepare_frames :: master_path = ", master_path)
 
         for frame, *_, x, y in thumbnails:
             with Image.open(frame) as image:

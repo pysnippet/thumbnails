@@ -43,16 +43,11 @@ class Generator:
             thumbnail = ThumbnailFactory.create_thumbnail(fmt, video, base, skip, output)
         except ThumbnailExistsError:
             return print("Skipping '%s'" % os.path.relpath(video.filepath))
-        print("thumbnail model has been created")
         thumbnail.prepare_frames()
-        print("thumbnail.prepare_frames() has been completed")
         thumbnail.generate()
-        print("thumbnail.generate() has been completed")
 
     def generate(self):
         self.inputs = dict(zip(map(lambda i: metadata_path(i, self.output, self.format), self.inputs), self.inputs))
-
-        print("self.inputs", self.inputs)
 
         if not self.skip and any(map(os.path.exists, self.inputs.keys())):
             self.skip = not click.confirm("Do you want to overwrite already existing files?")
@@ -66,8 +61,6 @@ class Generator:
                 ),
                 self.inputs.values(),
             )
-
-        print("videos", videos)
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
             executor.map(
