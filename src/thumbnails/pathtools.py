@@ -1,4 +1,3 @@
-import functools
 import os
 from distutils.dir_util import create_tree
 
@@ -11,7 +10,6 @@ def listdir(directory):
             yield os.path.abspath(filepath)
 
 
-@functools.cache
 def metadata_path(path, out, fmt):
     """Calculates the thumbnail metadata output path."""
     out = os.path.abspath(out or os.path.dirname(path))

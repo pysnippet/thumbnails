@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 from abc import ABCMeta
 from abc import abstractmethod
 from datetime import timedelta
@@ -99,13 +100,12 @@ class ThumbnailVTT(Thumbnail):
         master = Image.new(mode="RGBA", size=next(thumbnails))
         master_path = os.path.join(self.thumbnail_dir, extract_name(self.filepath) + ".png")
 
-        for frame, *_, x, y in self.thumbnails():
+        for frame, *_, x, y in thumbnails:
             with Image.open(frame) as image:
                 image = image.resize((self.width, self.height), Image.ANTIALIAS)
                 master.paste(image, (x, y))
 
         master.save(master_path)
-        self.tempdir.cleanup()
 
     def generate(self):
         def format_time(secs):
@@ -115,6 +115,7 @@ class ThumbnailVTT(Thumbnail):
         metadata = ["WEBVTT\n\n"]
         prefix = self.base or os.path.relpath(self.thumbnail_dir)
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
+        route = pathlib.Path(route).as_posix()
 
         for _, start, end, x, y in self.thumbnails():
             thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
@@ -125,6 +126,8 @@ class ThumbnailVTT(Thumbnail):
 
         with open(self.metadata_path, "w") as fp:
             fp.writelines(metadata)
+
+        self.tempdir.cleanup()
 
 
 @register_thumbnail("json")
@@ -139,7 +142,6 @@ class ThumbnailJSON(Thumbnail):
         if os.path.exists(self.thumbnail_dir):
             remove_tree(self.thumbnail_dir)
         copy_tree(self.tempdir.name, self.thumbnail_dir)
-        self.tempdir.cleanup()
 
     def generate(self):
         metadata = {}
@@ -151,6 +153,7 @@ class ThumbnailJSON(Thumbnail):
                 base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
                 prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
                 route = os.path.join(prefix, os.path.basename(frame))
+                route = pathlib.Path(route).as_posix()
                 thumbnail_data = {
                     "src": route,
                     "width": "%spx" % self.width,
@@ -159,3 +162,5 @@ class ThumbnailJSON(Thumbnail):
 
         with open(self.metadata_path, "w") as fp:
             json.dump(metadata, fp, indent=2)
+
+        self.tempdir.cleanup()

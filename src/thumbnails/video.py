@@ -1,5 +1,4 @@
 import concurrent.futures
-import functools
 import glob
 import math
 import os
@@ -15,7 +14,6 @@ from .frame import _Frame
 ffmpeg_bin = get_ffmpeg_exe()
 
 
-@functools.cache
 def arange(start, stop, step):
     """Roughly equivalent to numpy.arange."""
 
@@ -67,7 +65,9 @@ class Video(_FFMpeg, _Frame):
     def _extract_frame(self, start_time):
         """Extracts a single frame from the video by the offset."""
         offset = str(timedelta(seconds=start_time))
-        output = "%s/%s.png" % (self.tempdir.name, offset)
+        filename = "%s.png" % offset.replace(":", "-")
+        output = os.path.join(self.tempdir.name, filename)
+        os.close(os.open(output, os.O_CREAT, mode=0o664))
 
         cmd = (
             ffmpeg_bin,

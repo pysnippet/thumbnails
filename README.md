@@ -34,22 +34,24 @@ thumbnails --help
 
 ## Development
 
-Install the dependencies:
+### Install the dependencies
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Install the development dependencies:
+### Install the development dependencies
 ```bash
-python3 -m pip install -r requirements-dev.txt
+python3 -m pip install -r tests/requirements.txt
 ```
 
-Install the package in editable mode:
+### Install the package in editable mode
 ```bash
 python3 -m pip install -e .
 ```
+If you are using a non-default version of Python (for example, you work with a virtual environment), you may get an error with `distutils`. See how to [fix](https://askubuntu.com/questions/1261162) the issue.
 
-Run the tests to ensure everything is working before opening a PR:
+### Run the tests
+Run this in the local environment to ensure everything is working before opening a PR
 ```bash
 tox
 ```
