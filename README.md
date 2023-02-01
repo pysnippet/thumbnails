@@ -34,36 +34,27 @@ thumbnails --help
 
 ## Development
 
-### Install the dependencies
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-### Install the development dependencies
-```bash
-python3 -m pip install -r tests/requirements.txt
-```
-
 ### Install the package in editable mode
+This will install the package in the local environment and will allow you to make changes to the code and see the
+changes immediately. Also, this command will install all the required dependencies of the `requirements.txt` list.
 ```bash
 python3 -m pip install -e .
-```
-If you are using a non-default version of Python (for example, you work with a virtual environment), you may get an error with `distutils`. See how to [fix](https://askubuntu.com/questions/1261162) the issue.
-
-### Run the tests
-Run this in the local environment to ensure everything is working before opening a PR
-```bash
-tox
 ```
 
 ## Contribute
 
-Everyone is welcome to contribute to this project. Please read the [contribution guidelines](https://github.com/pysnippet/instructions#readme)
-before you start. Contributions can be considered
- - Reporting an issue
- - Opening a pull-request
- - Suggesting an idea at discussions
- - Starring the repository if it was helpful
+Everyone is welcome to contribute to this project. Please read and follow the [contribution guidelines](https://github.com/pysnippet/instructions#readme)
+before you start. Contributions can be considered:
+- Reporting an issue
+- Opening a pull-request
+- Suggesting an idea at [discussions](https://github.com/pysnippet/thumbnails/discussions)
+- Starring the repository if you like it
+
+Before you open a PR, please run the unit tests in the local environment to ensure everything is working. You need to
+install [tox](https://github.com/tox-dev/tox) and run the tests for configured environments.
+```bash
+python3 -m pip install tox && tox
+```
 
 ## License
 
