@@ -12,6 +12,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: |
+            pip install --upgrade pip
             python -m pip install -e .
             python -m pip install tox
 
@@ -20,6 +21,6 @@ jobs:
           command: tox
 
 workflows:
-  tests:
+  windows-tests:
     jobs:
       - test
