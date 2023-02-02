@@ -1,7 +1,8 @@
 # Thumbnails <img src="https://github.com/pysnippet.png" align="right" height="64" />
 
 [![PyPI](https://img.shields.io/pypi/v/thumbnails.svg)](https://pypi.org/project/thumbnails/)
-[![Tests](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml/badge.svg)](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml)
+[![Tests Ubuntu | MacOS](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml/badge.svg)](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml)
+[![Tests Windows](https://img.shields.io/circleci/build/gh/pysnippet/thumbnails?token=c63e2b94c69393ab3e47a0f20de802fe6265ecf4&label=Tests%20Windows&logo=circleci)](https://app.circleci.com/pipelines/github/pysnippet/thumbnails)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ab5414af4c9546fe97ad64365e2a66f0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pysnippet/thumbnails&amp;utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
 
