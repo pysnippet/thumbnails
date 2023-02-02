@@ -6,12 +6,19 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ab5414af4c9546fe97ad64365e2a66f0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pysnippet/thumbnails&amp;utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
 
+This tool stands out for its unparalleled optimization for lightning-fast thumbnail generation. By utilizing minimal
+resources, you can generate more in less time. And with a user-friendly CLI and a convenient Python API, this tool is
+the ultimate solution for efficient and streamlined thumbnail creation.
+
+## Compatible with Major Video Players
+
 Modern web video players use the **WebVTT** formatted files to preview thumbnails at a pointed time.
 [WebVTT](https://www.w3.org/TR/webvtt1/) is a format for displaying timed text tracks (such as subtitles or captions).
 Open-source video players such as [Plyr](https://github.com/sampotts/plyr), [Video.js](https://github.com/videojs/video.js),
 [Flowplayer](https://github.com/flowplayer/flowplayer), [Fluid Player](https://github.com/fluid-player/fluid-player),
-etc. use this format for showing the thumbnails. Using [external plugins](https://github.com/brightcove/videojs-thumbnails),
-Video.js also can handle **JSON** formatted thumbnails' metadata, and this tool can also generate the corresponding JSON.
+and more, use this format for showing the thumbnails. And, with the use of [external plugins](https://github.com/brightcove/videojs-thumbnails),
+Video.js even has the capability to handle **JSON** formatted thumbnail metadata. This is where our tool comes in,
+offering the ability to generate the perfect thumbnails to match your needs.
 
 ## Goals
 
