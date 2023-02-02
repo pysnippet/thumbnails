@@ -34,11 +34,43 @@ offering the ability to generate the perfect thumbnails to match your needs.
 
 ## Usage
 
+The `thumbnails` package offers a comprehensive solution for generating video thumbnails through the CLI and the Python API.
+
+### CLI Tool
+
+The CLI tool is a convenient way to generate thumbnails for a video file. It is a simple command line tool that
+accepts file or directory paths as arguments.
+
 ```bash
-thumbnails --help
+thumbnails ~Videos/movies --base /media/ --output /var/www/movie.com/media/thumbnails/ --interval 5
 ```
 
-[//]: # (TODO: usage for CLI and python API)
+For the full list of options, run `thumbnails --help`.
+
+### Python API
+
+The Python API provides a flexible way to integrate video thumbnail generation into your existing applications.
+Import the `Generator` class, initialize an instance with the list of video filenames, set the desired options,
+and call the `generate` method to start the generation.
+
+```python
+from thumbnails import Generator
+
+inputs = (
+    "~Downloads/movie.mp4",
+    "~Videos/movies/1.avi",
+    "~Videos/movies/2.ogv",
+)
+
+generator = Generator(inputs)
+generator.base = "/media/"
+generator.skip = True  # skip existing thumbnails
+generator.output = "/var/www/movie.com/media/thumbnails/"
+generator.interval = 5
+generator.generate()
+```
+
+Both the CLI and the Python API share the same set of options. For the full list of options refer to the `thumbnails --help`.
 
 ## Development
 
