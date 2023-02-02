@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/thumbnails.svg)](https://pypi.org/project/thumbnails/)
 [![Tests Ubuntu | MacOS](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml/badge.svg)](https://github.com/pysnippet/thumbnails/actions/workflows/tests.yml)
-[![Tests Windows](https://img.shields.io/circleci/build/gh/pysnippet/thumbnails?token=c63e2b94c69393ab3e47a0f20de802fe6265ecf4&label=Tests%20Windows&logo=circleci)](https://app.circleci.com/pipelines/github/pysnippet/thumbnails)
+[![Tests Windows](https://img.shields.io/circleci/build/gh/pysnippet/thumbnails?token=c63e2b94c69393ab3e47a0f20de802fe6265ecf4&label=Tests%20Windows&logo=circleci&logoColor=959da5&labelColor=3e464f)](https://app.circleci.com/pipelines/github/pysnippet/thumbnails)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ab5414af4c9546fe97ad64365e2a66f0)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pysnippet/thumbnails&amp;utm_campaign=Badge_Grade)
 [![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
 
@@ -20,38 +20,29 @@ and more, use this format for showing the thumbnails. And, with the use of [exte
 Video.js even has the capability to handle **JSON** formatted thumbnail metadata. This is where our tool comes in,
 offering the ability to generate the perfect thumbnails to match your needs.
 
-## Goals
+## Features
 
-[//]: # (TODO: replace this whole section with a "Why use this tool?" section by describing the below clauses.)
+- Wide-ranging video format compatibility, accommodating all major video formats as input files. (mp4, mkv, avi, mov, ogv, webm, mpeg, mpg, wmv, etc.)
+- Flexible output options, supporting both WebVTT and JSON formats.
+- Generating video thumbnails through the CLI and the Python API.
+- Customize your thumbnail creation to fit your specific needs with various options.
+- Image compression technology, ensuring optimized file sizes for quick and efficient loading times.
 
-- [x] Support multiple video formats as an input file
-- [x] Support WebVTT/json output formats
-- [x] Set an interval, etc (options).
-- [ ] [Image compression opportunity.](https://github.com/pysnippet/thumbnails/issues/29)
-- [ ] [Provide a well documented python API.](https://github.com/pysnippet/thumbnails/issues/11)
-- [ ] [Use like a linux command or as a python library.](https://github.com/pysnippet/thumbnails/issues/18)
-- [x] Deliver a high performance result.
+## How to Use?
 
-## Usage
+### CLI Tool Usage
 
-The `thumbnails` package offers a comprehensive solution for generating video thumbnails through the CLI and the Python API.
-
-### CLI Tool
-
-The CLI tool is a convenient way to generate thumbnails for a video file. It is a simple command line tool that
-accepts file or directory paths as arguments.
+The CLI is a convenient way to generate thumbnails for a video file. And it accepts files or directories as arguments.
+For the complete list of options, run `thumbnails --help`.
 
 ```bash
-thumbnails ~Videos/movies --base /media/ --output /var/www/movie.com/media/thumbnails/ --interval 5
+thumbnails --base /media/ --output /var/www/movie.com/media/thumbnails/ --interval 5 ~Videos/movies
 ```
 
-For the full list of options, run `thumbnails --help`.
-
-### Python API
+### Python API Usage
 
 The Python API provides a flexible way to integrate video thumbnail generation into your existing applications.
-Import the `Generator` class, initialize an instance with the list of video filenames, set the desired options,
-and call the `generate` method to start the generation.
+Both the CLI and the Python API share the same set of options.
 
 ```python
 from thumbnails import Generator
@@ -69,8 +60,6 @@ generator.output = "/var/www/movie.com/media/thumbnails/"
 generator.interval = 5
 generator.generate()
 ```
-
-Both the CLI and the Python API share the same set of options. For the full list of options refer to the `thumbnails --help`.
 
 ## Development
 
