@@ -42,12 +42,12 @@ thumbnails --help
 
 ## Development
 
-### Install the package in editable mode
-This will install the package in the local environment and will allow you to make changes to the code and see the
-changes immediately. Also, this command will install all the required dependencies of the `requirements.txt` list.
+Run the following command in the package's root directory to install it in editable mode.
 ```bash
 python3 -m pip install -e .
 ```
+This command will install the package in your local environment and allow you to make changes to the code and see the
+updates immediately. It will also install all the required dependencies listed in the [requirements.txt](requirements.txt) file.
 
 ## Contribute
 
