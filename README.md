@@ -72,7 +72,7 @@ updates immediately. It will also install all the required dependencies listed i
 
 ## Contribute
 
-Everyone is welcome to contribute to this project. Please read and follow the [contribution guidelines](https://github.com/pysnippet/instructions#readme)
+Everyone is welcome to contribute to this project. Please read and follow the [contribution guidelines](CONTRIBUTING.md)
 before you start. Contributions can be considered:
 - Reporting an issue
 - Opening a pull-request
