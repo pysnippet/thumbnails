@@ -2,6 +2,7 @@ import concurrent.futures
 import functools
 import itertools
 import os
+import re
 
 import click
 
@@ -47,7 +48,10 @@ class Generator:
         thumbnail.generate()
 
     def generate(self):
-        self.inputs = dict(zip(map(lambda i: metadata_path(i, self.output, self.format), self.inputs), self.inputs))
+        self.inputs = dict(zip(
+            map(lambda i: metadata_path(i, self.output, self.format), self.inputs),
+            filter(lambda i: re.match(r"^.*\.(?:(?!png|vtt|json).)+$", i), self.inputs),
+        ))
 
         if not self.skip and any(map(os.path.exists, self.inputs.keys())):
             self.skip = not click.confirm("Do you want to overwrite already existing files?")
