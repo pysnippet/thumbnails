@@ -4,8 +4,6 @@ import itertools
 import os
 import re
 
-import click
-
 from .constants import DEFAULT_BASE
 from .constants import DEFAULT_COMPRESS
 from .constants import DEFAULT_FORMAT
@@ -52,9 +50,6 @@ class Generator:
             map(lambda i: metadata_path(i, self.output, self.format), self.inputs),
             filter(lambda i: re.match(r"^.*\.(?:(?!png|vtt|json).)+$", i), self.inputs),
         ))
-
-        if not self.skip and any(map(os.path.exists, self.inputs.keys())):
-            self.skip = not click.confirm("Do you want to overwrite already existing files?")
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             videos = executor.map(
