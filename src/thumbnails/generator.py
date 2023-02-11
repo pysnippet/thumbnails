@@ -46,10 +46,8 @@ class Generator:
         thumbnail.generate()
 
     def generate(self):
-        self.inputs = dict(zip(
-            map(lambda i: metadata_path(i, self.output, self.format), self.inputs),
-            filter(lambda i: re.match(r"^.*\.(?:(?!png|vtt|json).)+$", i), self.inputs),
-        ))
+        self.inputs = [file for file in self.inputs if re.match(r"^.*\.(?:(?!png|vtt|json).)+$", file)]
+        self.inputs = dict(zip(map(lambda i: metadata_path(i, self.output, self.format), self.inputs), self.inputs))
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             videos = executor.map(
