@@ -37,6 +37,11 @@ def test_cli_only_files(tmp_media):
     assert os.path.exists(os.path.join(tmp_media, "avi", "video.vtt"))
 
 
+def test_cli_overwrite_files(tmp_media):
+    test_cli_only_files(tmp_media)
+    test_cli_only_files(tmp_media)
+
+
 def test_cli_only_directories(tmp_media):
     execute_cli(
         os.path.join(tmp_media, "avi"),
