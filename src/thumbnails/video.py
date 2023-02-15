@@ -38,6 +38,8 @@ class Video(_FFMpeg, _Frame):
             raise ValueError("Compress must be between 0 and 1.")
 
         self.tempdir = TemporaryDirectory()
+        self.__frames_count = None
+        self.__columns = None
 
         _FFMpeg.__init__(self, filepath)
         _Frame.__init__(self, self.size)
@@ -54,12 +56,26 @@ class Video(_FFMpeg, _Frame):
     def interval(self):
         return self.__interval
 
-    @staticmethod
-    def calc_columns(frames_count, width, height):
+    @property
+    def frames_count(self):
+        """Calculates and caches the count of frames."""
+        if not self.__frames_count:
+            self.__frames_count = len(arange(0, self.duration, self.interval))
+        return self.__frames_count
+
+    @property
+    def columns_count(self):
+        """Calculates and caches the count of columns."""
+        if not self.__columns:
+            self.__columns = self.calc_columns()
+        return self.__columns
+
+    def calc_columns(self):
         """Calculates an optimal number of columns for 16:9 aspect ratio."""
         ratio = 16 / 9
-        for col in range(1, frames_count):
-            if (col * width) / (frames_count // col * height) > ratio:
+        width, height = self.size
+        for col in range(1, self.frames_count):
+            if (col * width) / (self.frames_count // col * height) > ratio:
                 return col
 
     def _extract_frame(self, start_time):
@@ -102,11 +118,12 @@ class Video(_FFMpeg, _Frame):
         """
         line, column = 0, 0
         frames = sorted(glob.glob(self.tempdir.name + os.sep + "*.png"))
-        frames_count = len(arange(0, self.duration, self.interval))
-        columns = self.calc_columns(frames_count, self.width, self.height)
 
         if master_size:
-            yield self.width * columns, self.height * math.ceil(frames_count / columns)
+            yield (
+                self.width * self.columns_count,
+                self.height * math.ceil(self.frames_count / self.columns_count)
+            )
 
         for n, frame in enumerate(frames):
             x, y = self.width * column, self.height * line
@@ -117,6 +134,6 @@ class Video(_FFMpeg, _Frame):
 
             column += 1
 
-            if column == columns:
+            if column == self.columns_count:
                 line += 1
                 column = 0
