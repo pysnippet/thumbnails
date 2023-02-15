@@ -34,7 +34,7 @@ class Video(_FFMpeg, _Frame):
         self.__compress = float(compress)
         self.__interval = float(interval)
 
-        if self.__compress <= 0 or self.__compress > 1:
+        if self.__compress < 0 or self.__compress > 1:
             raise ValueError("Compress must be between 0 and 1.")
 
         self.tempdir = TemporaryDirectory()
