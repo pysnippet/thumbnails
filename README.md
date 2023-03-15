@@ -68,7 +68,7 @@ Run the following command in the package's root directory to install it in edita
 python3 -m pip install -e .
 ```
 This command will install the package in your local environment and allow you to make changes to the code and see the
-updates immediately. It will also install all the required dependencies listed in the [requirements.txt](requirements.txt) file.
+updates immediately. It will also install all the required dependencies.
 
 ## Contribute
 
