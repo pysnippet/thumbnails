@@ -10,6 +10,7 @@ from imageio_ffmpeg import get_ffmpeg_exe
 
 from .ffmpeg import _FFMpeg
 from .frame import _Frame
+from .progress import Progress
 
 ffmpeg_bin = get_ffmpeg_exe()
 
@@ -41,8 +42,9 @@ class Video(_FFMpeg, _Frame):
         self.__frames_count = None
         self.__columns = None
 
-        _FFMpeg.__init__(self, filepath)
-        _Frame.__init__(self, self.size)
+        with Progress("Parsing the video metadata ...", "Metadata has been parsed"):
+            _FFMpeg.__init__(self, filepath)
+            _Frame.__init__(self, self.size)
 
     @property
     def filepath(self):

@@ -12,6 +12,7 @@ from PIL import Image
 from .pathtools import ensure_tree
 from .pathtools import extract_name
 from .pathtools import metadata_path
+from .progress import Progress
 
 
 def register_thumbnail(typename):
@@ -45,7 +46,9 @@ class Thumbnail(metaclass=ABCMeta):
         self.thumbnail_dir = self.calc_thumbnail_dir()
         self.metadata_path = self._get_metadata_path()
         self._perform_skip()
-        self.extract_frames()
+
+        with Progress("Extracting frames ...", "Frames have been extracted"):
+            self.extract_frames()
 
     def _get_metadata_path(self):
         """Initiates the name of the thumbnail metadata file."""
@@ -100,12 +103,15 @@ class ThumbnailVTT(Thumbnail):
         master = Image.new(mode="RGBA", size=next(thumbnails))
         master_path = os.path.join(self.thumbnail_dir, extract_name(self.filepath) + ".png")
 
-        for frame, *_, x, y in thumbnails:
-            with Image.open(frame) as image:
-                image = image.resize((self.width, self.height), Image.ANTIALIAS)
-                master.paste(image, (x, y))
+        with Progress("Processing frames ...", "Frames have been merged into one") as progress:
+            for frame, *_, x, y in thumbnails:
+                progress.update("Processing '%s'" % frame)
+                with Image.open(frame) as image:
+                    image = image.resize((self.width, self.height), Image.ANTIALIAS)
+                    master.paste(image, (x, y))
 
-        master.save(master_path)
+            progress.update("Saving the result '%s'" % master_path)
+            master.save(master_path)
 
     def generate(self):
         def format_time(secs):
@@ -117,12 +123,14 @@ class ThumbnailVTT(Thumbnail):
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
         route = pathlib.Path(route).as_posix()
 
-        for _, start, end, x, y in self.thumbnails():
-            thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
-                format_time(start), format_time(end),
-                route, x, y, self.width, self.height,
-            )
-            metadata.append(thumbnail_data)
+        with Progress("Generating thumbnail metadata ...", "Thumbnail metadata has been generated") as progress:
+            for _, start, end, x, y in self.thumbnails():
+                progress.update("Generating metadata for '%s'" % route)
+                thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
+                    format_time(start), format_time(end),
+                    route, x, y, self.width, self.height,
+                )
+                metadata.append(thumbnail_data)
 
         with open(self.metadata_path, "w") as fp:
             fp.writelines(metadata)
