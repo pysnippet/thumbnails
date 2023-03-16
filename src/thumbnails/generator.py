@@ -12,6 +12,7 @@ from .constants import DEFAULT_OUTPUT
 from .constants import DEFAULT_SKIP
 from .pathtools import listdir
 from .pathtools import metadata_path
+from .progress import Progress
 from .thumbnail import ThumbnailExistsError
 from .thumbnail import ThumbnailFactory
 from .video import Video
@@ -46,6 +47,8 @@ class Generator:
         thumbnail.generate()
 
     def generate(self):
+        Progress.stop()
+
         self.inputs = [file for file in self.inputs if re.match(r"^.*\.(?:(?!png|vtt|json).)+$", file)]
         self.inputs = dict(zip(map(lambda i: metadata_path(i, self.output, self.format), self.inputs), self.inputs))
 
@@ -70,3 +73,5 @@ class Generator:
                 ),
                 videos,
             )
+
+        Progress.stop()
