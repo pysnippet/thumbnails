@@ -62,7 +62,7 @@ class Generator:
                 self.inputs.values(),
             )
 
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(
                 functools.partial(
                     self.worker,
