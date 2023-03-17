@@ -10,10 +10,10 @@ class Progress:
     _instance = RichProgress(SpinnerColumn(finished_text="*"),
                              TextColumn("[white]{task.description}{task.fields[status]}"))
 
-    def __init__(self, description, done_description):
+    def __init__(self, description):
         if self._running:
             self.task = self._instance.add_task(description, status=" ... [yellow]processing")
-        self.done_description = done_description
+        self.description = description
 
     def update(self, description, status=" ... [yellow]processing"):
         if self._running:
@@ -37,7 +37,7 @@ class Progress:
         self._instance.tasks[self.task].finished_time = 0
         if exc_type is not None:
             return self.update(exc_val, status=" ... [red]failure")
-        self.update(self.done_description, status=" ... [green]success")
+        self.update(self.description, status=" ... [green]success")
 
 
 def use_progress(func):
