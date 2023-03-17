@@ -38,3 +38,15 @@ class Progress:
         if exc_type is not None:
             return self.update(exc_val, status=" ... [red]failure")
         self.update(self.done_description, status=" ... [green]success")
+
+
+def use_progress(func):
+    """Decorator for using the progress bar."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        Progress.start()
+        func(*args, **kwargs)
+        Progress.stop()
+
+    return wrapper
