@@ -47,7 +47,7 @@ class Thumbnail(metaclass=ABCMeta):
         self.metadata_path = self._get_metadata_path()
         self._perform_skip()
 
-        with Progress("Extracting frames", "Frames have been extracted"):
+        with Progress("Extracting the frames by the given interval"):
             self.extract_frames()
 
     def _get_metadata_path(self):
@@ -103,14 +103,15 @@ class ThumbnailVTT(Thumbnail):
         master = Image.new(mode="RGBA", size=next(thumbnails))
         master_path = os.path.join(self.thumbnail_dir, extract_name(self.filepath) + ".png")
 
-        with Progress("Processing frames", "Frames have been merged into one") as progress:
+        with Progress("Preprocessing the frames before merging") as progress:
             for frame, *_, x, y in thumbnails:
-                progress.update("Processing '%s'" % frame)
+                offset = extract_name(frame).replace("-", ":").split(".")[0]
+                progress.update("Processing [bold]%s[/bold] frame" % offset)
                 with Image.open(frame) as image:
                     image = image.resize((self.width, self.height), Image.ANTIALIAS)
                     master.paste(image, (x, y))
 
-            progress.update("Saving the result '%s'" % master_path)
+        with Progress("Saving the result at '%s'" % master_path):
             master.save(master_path)
 
     def generate(self):
@@ -123,7 +124,7 @@ class ThumbnailVTT(Thumbnail):
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
         route = pathlib.Path(route).as_posix()
 
-        with Progress("Generating thumbnail metadata", "Thumbnail metadata has been generated") as progress:
+        with Progress("Saving thumbnail metadata at '%s'" % self.metadata_path) as progress:
             for _, start, end, x, y in self.thumbnails():
                 progress.update("Generating metadata for '%s'" % route)
                 thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
