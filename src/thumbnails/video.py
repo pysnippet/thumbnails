@@ -42,7 +42,7 @@ class Video(_FFMpeg, _Frame):
         self.__frames_count = None
         self.__columns = None
 
-Remove useless `done_description`        with Progress("Parsing metadata from the video"):
+        with Progress("Parsing metadata from the video"):
             _FFMpeg.__init__(self, filepath)
             _Frame.__init__(self, self.size)
 
