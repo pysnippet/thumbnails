@@ -1,28 +1,40 @@
+import functools
+
 from rich.progress import Progress as RichProgress
 from rich.progress import SpinnerColumn
 from rich.progress import TextColumn
 
 
 class Progress:
-    _instance = RichProgress(SpinnerColumn(), TextColumn("[white]{task.description}{task.fields[status]}"))
+    _running = False
+    _instance = RichProgress(SpinnerColumn(finished_text="*"),
+                             TextColumn("[white]{task.description}{task.fields[status]}"))
 
-    def __init__(self, description, done="Process completed"):
-        self.task = self._instance.add_task(description, status=" ... [yellow]processing")
-        self.done = done
+    def __init__(self, description, done_description):
+        if self._running:
+            self.task = self._instance.add_task(description, status=" ... [yellow]processing")
+        self.done_description = done_description
 
     def update(self, description, status=" ... [yellow]processing"):
-        self._instance.update(self.task, description=description, status=status, refresh=True)
+        if self._running:
+            self._instance.update(self.task, description=description, status=status, refresh=True)
 
     @classmethod
     def start(cls):
+        cls._running = True
         cls._instance.start()
 
     @classmethod
     def stop(cls):
+        cls._running = False
         cls._instance.stop()
 
     def __enter__(self):
         return self
 
-    def __exit__(self, *_):
-        self.update(self.done, status=" ... [green]done")
+    def __exit__(self, exc_type, exc_val, _):
+        # Set finished time to 0 to hide the spinner
+        self._instance.tasks[self.task].finished_time = 0
+        if exc_type is not None:
+            return self.update(exc_val, status=" ... [red]failure")
+        self.update(self.done_description, status=" ... [green]success")
