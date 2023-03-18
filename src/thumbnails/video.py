@@ -79,6 +79,7 @@ class Video(_FFMpeg, _Frame):
         for col in range(1, self.frames_count):
             if (col * width) / (self.frames_count // col * height) > ratio:
                 return col
+        return 1  # fixes the case when the video is too short
 
     def _extract_frame(self, start_time):
         """Extracts a single frame from the video by the offset."""
