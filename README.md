@@ -85,6 +85,14 @@ install [tox](https://github.com/tox-dev/tox) and run the tests for configured e
 python3 -m pip install tox && tox
 ```
 
+If you want to run tests only for the current environment with your local Python interpreter, you can use the following
+commands.
+
+```bash
+python3 -m pip install -r tests/requirements.txt
+python3 -m pytest
+```
+
 ## License
 
-Copyright (C) 2023 Artyom Vancyan. [Apache 2.0](LICENSE)
+Copyright (C) 2023 Artyom Vancyan. [Apache 2.0](https://github.com/pysnippet/thumbnails/blob/master/LICENSE)
