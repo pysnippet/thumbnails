@@ -38,14 +38,14 @@ def thumbnail_generation_with_with_extras(tmp_media, inputs, fmt):
     generator.output = os.path.join(tmp_media, "thumbnails")
     generator.format = fmt
     generator.compress = 0.5
-    generator.interval = 10
+    generator.interval = 8.2
     generator.generate()
 
     snapshot = open(os.path.join(tmp_media, "snapshots", "specified-base-%s" % fmt))
     result = open(os.path.join(tmp_media, "thumbnails", "video.%s" % fmt))
 
     if fmt == "json":
-        assert len(os.listdir(os.path.join(tmp_media, "thumbnails", "video"))) == 11
+        assert len(os.listdir(os.path.join(tmp_media, "thumbnails", "video"))) == 13
     assert snapshot.read() == result.read()
 
     snapshot.close()
