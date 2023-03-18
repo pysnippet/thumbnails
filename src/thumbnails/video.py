@@ -88,9 +88,7 @@ class Video(_FFMpeg, _Frame):
         output = os.path.join(self.tempdir.name, filename)
         os.close(os.open(output, os.O_CREAT, mode=0o664))
 
-        cmd = (
-            ffmpeg_bin,
-            "-ss", offset,
+        ffmpeg_options = (
             "-i", self.filepath,
             "-loglevel", "error",
             "-vframes", "1",
@@ -98,7 +96,12 @@ class Video(_FFMpeg, _Frame):
             "-y",
         )
 
-        subprocess.Popen(cmd).wait()
+        subprocess.Popen((ffmpeg_bin, "-ss", offset, *ffmpeg_options)).wait()
+
+        if os.stat(output).st_size == 0:
+            # Check if the frame is empty. If so, try to extract it again with a smaller offset.
+            # This handles the case when ffmpeg cannot extract the last frame of the video.
+            subprocess.Popen((ffmpeg_bin, "-sseof", "-0.1", *ffmpeg_options)).wait()
 
     def extract_frames(self):
         """Extracts the frames from the video by given intervals."""
