@@ -3,44 +3,52 @@
     "src": "/media/thumbnails/video/0-00-00.png",
     "width": "1280px"
   },
-  "10": {
-    "src": "/media/thumbnails/video/0-00-10.png",
+  "8": {
+    "src": "/media/thumbnails/video/0-00-08.200000.png",
     "width": "1280px"
   },
-  "20": {
-    "src": "/media/thumbnails/video/0-00-20.png",
+  "16": {
+    "src": "/media/thumbnails/video/0-00-16.400000.png",
     "width": "1280px"
   },
-  "30": {
-    "src": "/media/thumbnails/video/0-00-30.png",
+  "24": {
+    "src": "/media/thumbnails/video/0-00-24.600000.png",
     "width": "1280px"
   },
-  "40": {
-    "src": "/media/thumbnails/video/0-00-40.png",
+  "32": {
+    "src": "/media/thumbnails/video/0-00-32.800000.png",
     "width": "1280px"
   },
-  "50": {
-    "src": "/media/thumbnails/video/0-00-50.png",
+  "41": {
+    "src": "/media/thumbnails/video/0-00-41.png",
     "width": "1280px"
   },
-  "60": {
-    "src": "/media/thumbnails/video/0-01-00.png",
+  "49": {
+    "src": "/media/thumbnails/video/0-00-49.200000.png",
     "width": "1280px"
   },
-  "70": {
-    "src": "/media/thumbnails/video/0-01-10.png",
+  "57": {
+    "src": "/media/thumbnails/video/0-00-57.400000.png",
     "width": "1280px"
   },
-  "80": {
-    "src": "/media/thumbnails/video/0-01-20.png",
+  "65": {
+    "src": "/media/thumbnails/video/0-01-05.600000.png",
+    "width": "1280px"
+  },
+  "73": {
+    "src": "/media/thumbnails/video/0-01-13.800000.png",
+    "width": "1280px"
+  },
+  "82": {
+    "src": "/media/thumbnails/video/0-01-22.png",
     "width": "1280px"
   },
   "90": {
-    "src": "/media/thumbnails/video/0-01-30.png",
+    "src": "/media/thumbnails/video/0-01-30.200000.png",
     "width": "1280px"
   },
-  "100": {
-    "src": "/media/thumbnails/video/0-01-40.png",
+  "98": {
+    "src": "/media/thumbnails/video/0-01-38.400000.png",
     "width": "1280px"
   }
 }

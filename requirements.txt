@@ -1,5 +1,0 @@
-av>=8.0.0,<=9.2.0
-click>=8.0.3
-imageio-ffmpeg>=0.4.7
-imageio>=2.23.0
-pillow>=8.4.0

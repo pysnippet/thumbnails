@@ -10,6 +10,7 @@ from imageio_ffmpeg import get_ffmpeg_exe
 
 from .ffmpeg import _FFMpeg
 from .frame import _Frame
+from .progress import Progress
 
 ffmpeg_bin = get_ffmpeg_exe()
 
@@ -19,7 +20,7 @@ def arange(start, stop, step):
 
     def _generator():
         nonlocal start
-        while start < stop:
+        while start <= stop:
             yield start
             start += step
 
@@ -41,8 +42,9 @@ class Video(_FFMpeg, _Frame):
         self.__frames_count = None
         self.__columns = None
 
-        _FFMpeg.__init__(self, filepath)
-        _Frame.__init__(self, self.size)
+        with Progress("Parsing metadata from the video"):
+            _FFMpeg.__init__(self, filepath)
+            _Frame.__init__(self, self.size)
 
     @property
     def filepath(self):
@@ -77,6 +79,7 @@ class Video(_FFMpeg, _Frame):
         for col in range(1, self.frames_count):
             if (col * width) / (self.frames_count // col * height) > ratio:
                 return col
+        return 1  # fixes the case when the video is too short
 
     def _extract_frame(self, start_time):
         """Extracts a single frame from the video by the offset."""
