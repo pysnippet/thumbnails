@@ -20,7 +20,7 @@ def arange(start, stop, step):
 
     def _generator():
         nonlocal start
-        while start < stop:
+        while start <= stop:
             yield start
             start += step
 

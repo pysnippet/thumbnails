@@ -12,8 +12,7 @@ class _FFMpeg:
     """This class is used to parse the metadata of a video file."""
 
     def __init__(self, filepath):
-        duration, self.size = self._parse_metadata(filepath)
-        self.duration = int(duration + 1)
+        self.duration, self.size = self._parse_metadata(filepath)
 
     @staticmethod
     def _parse_duration(stdout):
