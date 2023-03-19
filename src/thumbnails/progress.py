@@ -46,7 +46,9 @@ def use_progress(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         Progress.start()
-        func(*args, **kwargs)
-        Progress.stop()
+        try:
+            func(*args, **kwargs)
+        finally:
+            Progress.stop()
 
     return wrapper
