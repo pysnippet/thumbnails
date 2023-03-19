@@ -124,9 +124,8 @@ class ThumbnailVTT(Thumbnail):
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
         route = pathlib.Path(route).as_posix()
 
-        with Progress("Saving thumbnail metadata at '%s'" % self.metadata_path) as progress:
+        with Progress("Saving thumbnail metadata at '%s'" % self.metadata_path):
             for _, start, end, x, y in self.thumbnails():
-                progress.update("Generating metadata for '%s'" % route)
                 thumbnail_data = "%s --> %s\n%s#xywh=%d,%d,%d,%d\n\n" % (
                     format_time(start), format_time(end),
                     route, x, y, self.width, self.height,
@@ -148,26 +147,28 @@ class ThumbnailJSON(Thumbnail):
         return ensure_tree(os.path.join(basedir, extract_name(self.filepath)), True)
 
     def prepare_frames(self):
-        if os.path.exists(self.thumbnail_dir):
-            remove_tree(self.thumbnail_dir)
-        copy_tree(self.tempdir.name, self.thumbnail_dir)
+        with Progress("Copying the frames to the output directory"):
+            if os.path.exists(self.thumbnail_dir):
+                remove_tree(self.thumbnail_dir)
+            copy_tree(self.tempdir.name, self.thumbnail_dir)
 
     def generate(self):
         metadata = {}
 
-        for frame, start, *_ in self.thumbnails():
-            frame = os.path.join(self.thumbnail_dir, os.path.basename(frame))
-            with Image.open(frame) as image:
-                image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
-                base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
-                prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
-                route = os.path.join(prefix, os.path.basename(frame))
-                route = pathlib.Path(route).as_posix()
-                thumbnail_data = {
-                    "src": route,
-                    "width": "%spx" % self.width,
-                }
-                metadata[int(start)] = thumbnail_data
+        with Progress("Saving thumbnail metadata at '%s'" % self.metadata_path):
+            for frame, start, *_ in self.thumbnails():
+                frame = os.path.join(self.thumbnail_dir, os.path.basename(frame))
+                with Image.open(frame) as image:
+                    image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
+                    base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
+                    prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
+                    route = os.path.join(prefix, os.path.basename(frame))
+                    route = pathlib.Path(route).as_posix()
+                    thumbnail_data = {
+                        "src": route,
+                        "width": "%spx" % self.width,
+                    }
+                    metadata[int(start)] = thumbnail_data
 
         with open(self.metadata_path, "w") as fp:
             json.dump(metadata, fp, indent=2)
