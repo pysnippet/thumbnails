@@ -17,8 +17,8 @@ class _Frame:
         self._max_height = math.ceil(self._max_width * self._height / self._width)
 
         # Final size of the frame
-        self.__width = None
-        self.__height = None
+        self._final_width = None
+        self._final_height = None
 
     @property
     def compress(self):
@@ -38,17 +38,17 @@ class _Frame:
     @property
     def width(self):
         """Calculates and caches the frame width."""
-        if not self.__width:
-            self.__width = round(self._width * self.compress)
-            self.__width = max(self.__width, self._min_width)
-            self.__width = min(self.__width, self._max_width)
-        return self.__width
+        if not self._final_width:
+            self._final_width = round(self._width * self.compress)
+            self._final_width = max(self._final_width, self._min_width)
+            self._final_width = min(self._final_width, self._max_width)
+        return self._final_width
 
     @property
     def height(self):
         """Calculates and caches the frame height."""
-        if not self.__height:
-            self.__height = round(self._height * self.compress)
-            self.__height = max(self.__height, self._min_height)
-            self.__height = min(self.__height, self._max_height)
-        return self.__height
+        if not self._final_height:
+            self._final_height = round(self._height * self.compress)
+            self._final_height = max(self._final_height, self._min_height)
+            self._final_height = min(self._final_height, self._max_height)
+        return self._final_height
