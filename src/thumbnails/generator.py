@@ -11,7 +11,6 @@ from .constants import DEFAULT_INTERVAL
 from .constants import DEFAULT_OUTPUT
 from .constants import DEFAULT_SKIP
 from .pathtools import listdir
-from .pathtools import metadata_path
 from .progress import use_progress
 from .thumbnail import ThumbnailExistsError
 from .thumbnail import ThumbnailFactory
@@ -36,6 +35,9 @@ class Generator:
         self.compress = DEFAULT_COMPRESS
         self.interval = DEFAULT_INTERVAL
 
+        # Remove non-video files in case of input directory already contains other generated files.
+        self.inputs = [file for file in self.inputs if re.match(r"^.*\.(?:(?!png|vtt|json).)+$", file)]
+
     @staticmethod
     def worker(video, fmt, base, skip, output):
         """Executes the required workflows for generating a thumbnail."""
@@ -46,21 +48,18 @@ class Generator:
         thumbnail.prepare_frames()
         thumbnail.generate()
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        """Returns the next video to be processed."""
+        try:
+            return Video(self.inputs.pop(), self.compress, self.interval)
+        except IndexError:
+            raise StopIteration
+
     @use_progress
     def generate(self):
-        self.inputs = [file for file in self.inputs if re.match(r"^.*\.(?:(?!png|vtt|json).)+$", file)]
-        self.inputs = dict(zip(map(lambda i: metadata_path(i, self.output, self.format), self.inputs), self.inputs))
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            videos = executor.map(
-                functools.partial(
-                    Video,
-                    compress=self.compress,
-                    interval=self.interval,
-                ),
-                self.inputs.values(),
-            )
-
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(
                 functools.partial(
@@ -70,5 +69,5 @@ class Generator:
                     skip=self.skip,
                     output=self.output,
                 ),
-                videos,
+                self,
             )
