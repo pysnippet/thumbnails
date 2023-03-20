@@ -92,6 +92,7 @@ class Video(_FFMpeg, _Frame):
             "-i", self.filepath,
             "-loglevel", "error",
             "-vframes", "1",
+            "-vf", "scale=%d:%d" % (self.width, self.height),
             output,
             "-y",
         )

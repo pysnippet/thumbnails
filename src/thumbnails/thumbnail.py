@@ -108,7 +108,6 @@ class ThumbnailVTT(Thumbnail):
                 offset = extract_name(frame).replace("-", ":").split(".")[0]
                 progress.update("Processing [bold]%s[/bold] frame" % offset)
                 with Image.open(frame) as image:
-                    image = image.resize((self.width, self.height), Image.ANTIALIAS)
                     master.paste(image, (x, y))
 
         with Progress("Saving the result at '%s'" % master_path):
@@ -158,17 +157,15 @@ class ThumbnailJSON(Thumbnail):
         with Progress("Saving thumbnail metadata at '%s'" % self.metadata_path):
             for frame, start, *_ in self.thumbnails():
                 frame = os.path.join(self.thumbnail_dir, os.path.basename(frame))
-                with Image.open(frame) as image:
-                    image.resize((self.width, self.height), Image.ANTIALIAS).save(frame)
-                    base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
-                    prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
-                    route = os.path.join(prefix, os.path.basename(frame))
-                    route = pathlib.Path(route).as_posix()
-                    thumbnail_data = {
-                        "src": route,
-                        "width": "%spx" % self.width,
-                    }
-                    metadata[int(start)] = thumbnail_data
+                base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
+                prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
+                route = os.path.join(prefix, os.path.basename(frame))
+                route = pathlib.Path(route).as_posix()
+                thumbnail_data = {
+                    "src": route,
+                    "width": "%spx" % self.width,
+                }
+                metadata[int(start)] = thumbnail_data
 
         with open(self.metadata_path, "w") as fp:
             json.dump(metadata, fp, indent=2)
