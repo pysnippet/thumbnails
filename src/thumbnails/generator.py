@@ -10,6 +10,7 @@ from .constants import DEFAULT_FORMAT
 from .constants import DEFAULT_INTERVAL
 from .constants import DEFAULT_OUTPUT
 from .constants import DEFAULT_SKIP
+from .constants import DEFAULT_WORKERS
 from .pathtools import listdir
 from .progress import use_progress
 from .thumbnail import ThumbnailExistsError
@@ -34,9 +35,23 @@ class Generator:
         self.format = DEFAULT_FORMAT
         self.compress = DEFAULT_COMPRESS
         self.interval = DEFAULT_INTERVAL
+        self._workers = DEFAULT_WORKERS
 
         # Remove non-video files in case of input directory already contains other generated files.
         self.inputs = [file for file in self.inputs if re.match(r"^.*\.(?:(?!png|vtt|json).)+$", file)]
+
+    @property
+    def workers(self):
+        """Returns the number of workers for concurrent processing."""
+        if self._workers > 0:
+            return self._workers
+        # Limit the auto-calculated workers for super-multicore machines.
+        return min(32, len(self.inputs), (os.cpu_count() or 1) + 4)
+
+    @workers.setter
+    def workers(self, value):
+        """Sets the number of workers for concurrent processing."""
+        self._workers = value
 
     @staticmethod
     def worker(video, fmt, base, skip, output):
@@ -60,7 +75,7 @@ class Generator:
 
     @use_progress
     def generate(self):
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.workers) as executor:
             executor.map(
                 functools.partial(
                     self.worker,
