@@ -3,9 +3,7 @@ import subprocess
 
 
 def execute_cli(*args, must_fail=False):
-    stdout = subprocess.run(("thumbnails", *args), capture_output=True)
-    assert stdout.returncode == must_fail
-    return stdout.stdout.decode()
+    assert subprocess.call(("thumbnails", *args)) == must_fail
 
 
 def test_cli_help():
