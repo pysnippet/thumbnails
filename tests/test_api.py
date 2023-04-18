@@ -32,16 +32,16 @@ def thumbnail_generation_with_default_output(tmp_media, inputs, fmt):
     ogv_result.close()
 
 
-def thumbnail_generation_with_with_extras(tmp_media, inputs, fmt):
+def thumbnail_generation_with_with_extras(tmp_media, inputs, fmt, base, snapshot_file):
     generator = Generator(inputs)
-    generator.base = "/media/thumbnails/"
+    generator.base = base
     generator.output = os.path.join(tmp_media, "thumbnails")
     generator.format = fmt
     generator.compress = 0.5
     generator.interval = 8.2
     generator.generate()
 
-    snapshot = open(os.path.join(tmp_media, "snapshots", "specified-base-%s" % fmt))
+    snapshot = open(os.path.join(tmp_media, "snapshots", snapshot_file + fmt))
     result = open(os.path.join(tmp_media, "thumbnails", "video.%s" % fmt))
 
     if fmt == "json":
@@ -64,7 +64,8 @@ def test_api_vtt_generation_file_inputs_default_output(tmp_media):
 
 def test_api_vtt_generation_with_extras(tmp_media):
     inputs = (os.path.join(tmp_media, "avi"), os.path.join(tmp_media, "ogv"))
-    thumbnail_generation_with_with_extras(tmp_media, inputs, "vtt")
+    thumbnail_generation_with_with_extras(tmp_media, inputs, "vtt", "", "specified-empty-base-")
+    thumbnail_generation_with_with_extras(tmp_media, inputs, "vtt", "/media/thumbnails/", "specified-base-")
 
 
 def test_api_json_generation_directory_inputs_default_output(tmp_media):
@@ -79,4 +80,5 @@ def test_api_json_generation_file_inputs_default_output(tmp_media):
 
 def test_api_json_generation_with_extras(tmp_media):
     inputs = (os.path.join(tmp_media, "avi"), os.path.join(tmp_media, "ogv"))
-    thumbnail_generation_with_with_extras(tmp_media, inputs, "json")
+    thumbnail_generation_with_with_extras(tmp_media, inputs, "json", "", "specified-empty-base-")
+    thumbnail_generation_with_with_extras(tmp_media, inputs, "json", "/media/thumbnails/", "specified-base-")
