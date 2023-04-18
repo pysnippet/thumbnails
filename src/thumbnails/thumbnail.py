@@ -119,7 +119,7 @@ class ThumbnailVTT(Thumbnail):
             return ("0%s.000" % delta)[:12]
 
         metadata = ["WEBVTT\n\n"]
-        prefix = self.base or os.path.relpath(self.thumbnail_dir)
+        prefix = self.base if self.base is not None else os.path.relpath(self.thumbnail_dir)
         route = os.path.join(prefix, extract_name(self.filepath) + ".png")
         route = pathlib.Path(route).as_posix()
 
@@ -157,8 +157,8 @@ class ThumbnailJSON(Thumbnail):
         with Progress("Saving thumbnail metadata at '%s'" % self.metadata_path):
             for frame, start, *_ in self.thumbnails():
                 frame = os.path.join(self.thumbnail_dir, os.path.basename(frame))
-                base = os.path.join(self.base, os.path.basename(self.thumbnail_dir))
-                prefix = base if self.base else os.path.relpath(self.thumbnail_dir)
+                base = os.path.join(self.base or "", os.path.basename(self.thumbnail_dir))
+                prefix = base if self.base is not None else os.path.relpath(self.thumbnail_dir)
                 route = os.path.join(prefix, os.path.basename(frame))
                 route = pathlib.Path(route).as_posix()
                 thumbnail_data = {
