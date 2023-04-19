@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.0
+
 jobs:
   test:
     machine:
@@ -22,4 +25,3 @@ workflows:
   windows-tests:
     jobs:
       - test
-
