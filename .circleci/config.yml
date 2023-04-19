@@ -1,11 +1,9 @@
 version: 2.1
 
-orbs:
-  win: circleci/windows@5.0
-
 jobs:
   test:
-    executor: win/default
+    machine:
+      image: windows-default
     steps:
       - checkout
 
