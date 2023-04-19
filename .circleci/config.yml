@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   test:
     machine:
-      image: windows-2022:current
+      image: windows-2022
     steps:
       - checkout
 
