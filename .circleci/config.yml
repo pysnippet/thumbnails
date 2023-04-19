@@ -4,6 +4,7 @@ jobs:
   test:
     machine:
       image: windows-default
+    resource_class: windows.medium
     steps:
       - checkout
 
