@@ -1,9 +1,11 @@
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.0
+
 jobs:
   test:
-    machine:
-      image: windows-2022
+    executor: win/server-2019
     steps:
       - checkout
 
