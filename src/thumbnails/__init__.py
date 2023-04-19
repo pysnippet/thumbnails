@@ -22,7 +22,7 @@ from .thumbnail import ThumbnailJSON
 from .thumbnail import ThumbnailVTT
 from .thumbnail import register_thumbnail
 
-__version__ = "0.1.10"
+__version__ = "0.1.11"
 __all__ = (
     "Generator",
     "Thumbnail",
