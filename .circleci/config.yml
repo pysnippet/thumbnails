@@ -5,7 +5,7 @@ orbs:
 
 jobs:
   test:
-    executor: win/default
+    executor: win/server-2022
     steps:
       - checkout
 
